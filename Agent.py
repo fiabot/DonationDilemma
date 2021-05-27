@@ -1,4 +1,3 @@
-import deap
 import deap.gp as gp
 import operator
 import random
@@ -24,7 +23,7 @@ class Agent:
         if tree != None:
             self.tree = tree  # TODO: doesn't copy tree, this could be a problem
         else:
-            expr = gp.genFull(self.pset, min_=min_height, max_=max_height)
+            expr = gp.genHalfAndHalf(self.pset, min_=min_height, max_=max_height)
             self.tree = gp.PrimitiveTree(expr)
         self.min_height = min_height
         self.max_height = max_height
@@ -109,7 +108,13 @@ class Agent:
 
     def mutate(self, muts=10):
         for i in range(muts):
-            self.tree = gp.mutNodeReplacement(self.tree, self.pset)[0]
+            num = random.randint(0,2)
+            if num == 0:
+                self.tree = gp.mutNodeReplacement(self.tree, self.pset)[0]
+            elif num == 1:
+                self.tree = gp.mutShrink(self.tree)[0]
+            elif num == 2:
+                self.tree = gp.mutInsert(self.tree, self.pset)[0]
         self.runTree = gp.compile(self.tree, self.pset)
 
 if __name__ == "__main__":
