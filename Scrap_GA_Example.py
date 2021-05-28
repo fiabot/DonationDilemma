@@ -69,8 +69,8 @@ mstats.register("min", numpy.min)
 mstats.register("max", numpy.max)
 
 pop = toolbox.population(n=300)
+
+algorithms.varAnd(pop, toolbox,0.5, 0.5)
 hof = tools.HallOfFame(1)
 pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 40, stats=mstats,
-                               halloffame=hof, verbose=False)
-
-print(hof)
+                               halloffame=hof, verbose=True)

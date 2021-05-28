@@ -1,5 +1,6 @@
 import deap.gp as gp
 import operator
+from deap import base
 import random
 import copy
 #import pygraphviz as pgv
@@ -31,17 +32,18 @@ class Agent:
         self.runTree = gp.compile(self.tree, self.pset)
 
         self.alive = True
-        self.saving = 0
+        self.savings = 0
         self.hist1 = 0
         self.hist2 = 0
         self.hist3 = 0
+        #self.fitness = base.Fitness()
 
     def reset(self):
         """
         restart starting variables
         """
         self.alive = True
-        self.saving = 0
+        self.savings = 0
         self.hist1 = 0
         self.hist2 = 0
         self.hist3 = 0
@@ -118,23 +120,43 @@ class Agent:
                 self.tree = gp.mutInsert(self.tree, self.pset)[0]
         self.runTree = gp.compile(self.tree, self.pset)
 
-def mate(agent1, agent2):
-    newTree1, newTree2 = gp.cxOnePoint(agent1.getTree, agent2.getTree)
-    return Agent(agent1.min_height, agent1.max_height, tree=newTree1), Agent(agent1.min_height, agent1.max_height,
-                                                                         tree=newTree1)
-def mutate(agent, muts =10):
-    for i in range(muts):
-        num = random.randint(0, 2)
-        if num == 0:
-            agent.tree = gp.mutNodeReplacement(agent.tree, agent.pset)[0]
-        elif num == 1:
-            agent.tree = gp.mutShrink(agent.tree)[0]
-        elif num == 2:
-            agent.tree = gp.mutInsert(agent.tree, agent.pset)[0]
-    agent.runTree = gp.compile(agent.tree, agent.pset)
+def mate(agent1, agent2, max_height = 17, toolbox = None):
+    """
+    Return the offspring of a one point crossover between two
+    agents. If one offspring exceeds the max height, return one
+     of the parents (chosen randomly)
+    :param agent1: first agent to mate
+    :param agent2: second agent
+    :param max_height: max height of tree
+    :return: two new agents
+    """
+    newTree1, newTree2 = gp.cxOnePoint(agent1.tree, agent2.tree)
+    if newTree1.height > max_height:
+        newTree1 = random.choice(agent1.tree, agent2.tree)
+
+    if newTree2.height > max_height:
+        newTree2 = random.choice(agent1.tree, agent2.tree)
+
+    if toolbox  != None:
+        return toolbox.individual(tree =newTree1), toolbox.individual(tree =newTree2)
+    else:
+        return Agent(agent1.min_height, agent1.max_height, tree=newTree1), Agent(agent1.min_height, agent1.max_height,
+                                                                         tree=newTree2)
+def mutate(agent, expr, max_height = 17):
+    #expr = gp.genHalfAndHalf(agent.pset, 0, 2)
+    new_tree = gp.mutUniform(agent.tree, expr, agent.pset)
+    new_tree = new_tree[0]
+    if new_tree.height <= max_height:
+        agent.tree = new_tree
+        agent.runTree = gp.compile(agent.tree, agent.pset)
+    return agent,
 
 if __name__ == "__main__":
     agent = Agent(1, 5)
+    agent2 = Agent(1,5)
     print(agent.donate(0, 300, 20, 250, 0, 10, 400, 0, 4))
     agent.mutate(muts=1)
     print(agent.donate(0, 300, 20, 250, 0, 10, 400, 0, 4))
+
+    a1, a2 = mate(agent, agent2)
+    print(a1.tree)

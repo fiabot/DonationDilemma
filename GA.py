@@ -9,14 +9,21 @@ import math
 import random
 import Agent as a
 import Tournament
+def evaluate(agents):
+    for a in agents:
+        a.savings = random.randint(0, 500)
+
+def reset(agents):
+    for a in agents:
+        a.reset()
 
 class GA:
-    def __init__(self, max_gens, pop_size, xover, mut):
+    def __init__(self, pop_size, xover, mut, elites):
 
-        self.max_gens = max_gens
         self.pop_size = pop_size
         self.xover = xover
         self.mut = mut
+        self.elites = elites
 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", a.Agent, fitness=creator.FitnessMax)
@@ -27,33 +34,56 @@ class GA:
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         #toolbox.register("tourament", creator.Tourament, )
-        self.toolbox.register("evaluate", print, "Evaluating")  # <- set up method or evaluation
-        self.toolbox.register("select", tools.selTournament, tournsize=3, fit_attr = "saving")  # <- select indivuals from a tourment style thingy
-        self.toolbox.register("mate", a.mate)
+        self.toolbox.register("evaluate", evaluate)  # <- set up method or evaluation
+        self.toolbox.register("select", tools.selTournament, tournsize=3, fit_attr = "savings")  # <- select indivuals from a tourment style thingy
+        self.toolbox.register("mate", a.mate, max_height = 17, toolbox = self.toolbox)
         self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-        self.toolbox.register("mutate", a.mutate)
+        self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height = 17)
+        self.toolbox.register("get_elites", tools.selBest, k=self.elites)
+        self.toolbox.register("get_best", tools.selBest, k=1)
+        self.toolbox.register("reset", reset)
 
-        self.toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17)) #<- I imagine this will cause problems
-        self.toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+
 
         #TODO add statitics
-    def run(self):
+    def run(self, max_gens, debug = False):
         gen = 0
         pop = self.toolbox.population()
-        while gen < self.max_gens:
 
-            # Vary the population
+        if debug:
+            print(pop[0].tree)
+            #print(self.toolbox.individual(tree =pop[0].tree))
+        while gen < max_gens:
+
+            # Vary the population -- not working bc mutate and xover return agents
             new_pop = algorithms.varAnd(pop, self.toolbox, self.xover, self.mut)
+            #new_pop = pop
 
             #evaluate population
-            self.toolbox.evalate(new_pop)
+            self.toolbox.evaluate(new_pop)
+
+            if debug:
+                best = self.toolbox.get_best(new_pop)[0]
+                print("Generation:", gen, "best fitness:", best.savings)
+                print("Tree", best.tree)
+
+            #Elitism
+            elites = self.toolbox.get_elites(new_pop)
+            pop = elites
 
             #select indivuals
-            pop = self.toolbox.select(new_pop, len(new_pop)) #TODO figure out what the fuck is going here
-            #^ is what the co-evolution example had for selections, but doesn't this just select everyone?
-            # I am so confused
+            #this will replace the previous generation, but with mostly good indivuals
+            #because select will replace indivuals
+            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))
+
+            self.toolbox.reset(pop)
+
+
 
             gen += 1
-        return pop 
+        return pop
 
 
+if __name__ == "__main__":
+    ga = GA(10, 0.5, 0.5, 1)
+    pop = ga.run(10, True)

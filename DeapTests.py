@@ -37,4 +37,5 @@ print("Mutation 1 " + str(t[0]))
 newTree1, newTree2 = gp.cxOnePoint(tree1, tree2)
 print("CrossOver: " + str(newTree1))
 
-print(gp.PrimitiveTree(expr, fitness = 1))
+expr = gp.genFull(pset, min_=0, max_=2)
+gp.mutUniform(newTree1,expr, pset)
