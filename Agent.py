@@ -25,6 +25,7 @@ class Agent:
         else:
             expr = gp.genHalfAndHalf(self.pset, min_=min_height, max_=max_height)
             self.tree = gp.PrimitiveTree(expr)
+        self.height = self.tree.height
         self.min_height = min_height
         self.max_height = max_height
         self.runTree = gp.compile(self.tree, self.pset)
@@ -116,6 +117,21 @@ class Agent:
             elif num == 2:
                 self.tree = gp.mutInsert(self.tree, self.pset)[0]
         self.runTree = gp.compile(self.tree, self.pset)
+
+def mate(agent1, agent2):
+    newTree1, newTree2 = gp.cxOnePoint(agent1.getTree, agent2.getTree)
+    return Agent(agent1.min_height, agent1.max_height, tree=newTree1), Agent(agent1.min_height, agent1.max_height,
+                                                                         tree=newTree1)
+def mutate(agent, muts =10):
+    for i in range(muts):
+        num = random.randint(0, 2)
+        if num == 0:
+            agent.tree = gp.mutNodeReplacement(agent.tree, agent.pset)[0]
+        elif num == 1:
+            agent.tree = gp.mutShrink(agent.tree)[0]
+        elif num == 2:
+            agent.tree = gp.mutInsert(agent.tree, agent.pset)[0]
+    agent.runTree = gp.compile(agent.tree, agent.pset)
 
 if __name__ == "__main__":
     agent = Agent(1, 5)

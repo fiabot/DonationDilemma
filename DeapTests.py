@@ -1,9 +1,12 @@
-import deap
-import deap.gp as gp
+from deap import gp
+from deap import base
+from deap import creator
+from deap import tools
+from deap import algorithms
+import numpy
 import operator
+import math
 import random
-import copy
-#import pygraphviz as pgv
 
 pset = gp.PrimitiveSet("main", 2)
 pset.addPrimitive(max, 2)
@@ -34,3 +37,4 @@ print("Mutation 1 " + str(t[0]))
 newTree1, newTree2 = gp.cxOnePoint(tree1, tree2)
 print("CrossOver: " + str(newTree1))
 
+print(gp.PrimitiveTree(expr, fitness = 1))
