@@ -46,9 +46,15 @@ class GA:
         self.toolbox.register("get_best", tools.selBest, k=1)
         self.toolbox.register("reset", reset)
 
+        self.stats = tools.Statistics(lambda ind: ind.fitness.values)
+        self.stats.register("avg", numpy.mean)
+        self.stats.register("std", numpy.std)
+        self.stats.register("min", numpy.min)
+        self.stats.register("max", numpy.max)
 
+        self.logbook = tools.Logbook()
+        self.logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
-        #TODO add statitics
     def run(self, max_gens, debug = False):
         gen = 0
         pop = self.toolbox.population()
@@ -65,10 +71,14 @@ class GA:
             #evaluate population
             self.toolbox.evaluate(new_pop)
 
+            record = self.stats.compile(new_pop)
+            self.logbook.record(gen=gen, evals=len(new_pop), **record)
+
             if debug:
-                best = self.toolbox.get_best(new_pop)[0]
-                print("Generation:", gen, "best fitness:", best.savings)
-                print("Tree", best.tree)
+                #best = self.toolbox.get_best(new_pop)[0]
+                print(self.logbook.stream)
+                #print("Generation:", gen, "best fitness:", best.savings)
+                #print("Tree", best.tree)
 
             #Elitism
             elites = self.toolbox.get_elites(new_pop)
@@ -81,12 +91,10 @@ class GA:
 
             self.toolbox.reset(pop)
 
-
-
             gen += 1
         return pop
 
 
 if __name__ == "__main__":
     ga = GA(30, 0.5, 0.5, 1)
-    pop = ga.run(10, True)
+    pop = ga.run(100, True)

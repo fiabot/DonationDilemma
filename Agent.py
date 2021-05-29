@@ -133,10 +133,10 @@ def mate(agent1, agent2, max_height = 17, toolbox = None):
     """
     newTree1, newTree2 = gp.cxOnePoint(agent1.tree, agent2.tree)
     if newTree1.height > max_height:
-        newTree1 = random.choice(agent1.tree, agent2.tree)
+        newTree1 = random.choice([agent1.tree, agent2.tree])
 
     if newTree2.height > max_height:
-        newTree2 = random.choice(agent1.tree, agent2.tree)
+        newTree2 = random.choice([agent1.tree, agent2.tree])
 
     if toolbox  != None:
         return toolbox.individual(tree =newTree1), toolbox.individual(tree =newTree2)
