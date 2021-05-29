@@ -92,12 +92,12 @@ class GA:
             self.toolbox.reset(pop)
 
             gen += 1
-        return pop
+        return pop, self.logbook
 
 
 if __name__ == "__main__":
     ga = GA(30, 0.5, 0.5, 1)
-    pop = ga.run(100, True)
+    pop, log = ga.run(100, True)
     #Run random tourament
     print("Random Game")
 
