@@ -37,7 +37,7 @@ for node in g.nodes:
     g.nodes[node]["label"] = labels[node]
 print(g.nodes.data())
 
-write_dot(g,'test.dot')
+#write_dot(g,'test.dot')
 #pos =graphviz_layout(g, prog='dot')
 pos = nx.planar_layout(g,center = edges[0])
 node_colors = range(len(g))
