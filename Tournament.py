@@ -1,14 +1,132 @@
 import random
 
 
+def run_2players(pop, debug=False):
+    """
+    The main tournament for a series of 2 agent rounds
+    :param pop: The full population of agents
+    :param debug: switch to turn on debug mode
+    :return: the victor (may the odds be ever in your favor)
+    """
+    current_round = pop[:]
+    round = 0
+    while len(current_round) > 1:
+        if debug:
+            print(round, len(current_round))
+        random.shuffle(current_round)
+        next_round = []
+        for i in range(1, len(current_round), 2):
+            one = current_round[i - 1]
+            two = current_round[i]
+            next_round.extend(round_fitness_2players(one, two))
+        if len(current_round) % 2 == 1:
+            current_round[-1].add_savings(500)
+            next_round.append(current_round[-1])
+        current_round = next_round
+        round += 1
+    return current_round
+
+
+def round_fitness_2players(one, two):
+    """
+    conducts the donation process between two agents,
+    which therefore updates each agent's total savings
+    as well as determines who lives and dies in this round
+    :param one: agent P
+    :param two: PERRY THE PLATYPUS???
+    :return: the victor (if there is one)
+    """
+    one_donation = one.donate()
+    two_donation = two.donate()
+    one_money = __individual_result(one_donation, two_donation)
+    two_money = __individual_result(two_donation, one_donation)
+    one.add_savings(one_money)
+    two.add_savings(two_money)
+    return __survived_2players(one, two, one_money, two_money)
+
+
+def __individual_result(donating, receiving):
+    """
+    calculates the final money of an agent at the end of an individual round
+    :param donating: the amount the agent's giving to another
+    :param receiving: the collective amount this agent is getting from others
+    :return: the agent's final amount of the round
+    """
+    return 500 + receiving - donating
+
+
+def __survived_2players(one, two, one_current, two_current):
+    """
+    determines who lives and who dies in a two agent round
+    :param one: an agent
+    :param two: a different agent
+    :param one_current: the wallet of agent one
+    :param two_current: the wallet of agent two
+    :return: the survived agent (if there is one)
+    """
+    if one_current >= 800:
+        return [one]
+    elif two_current >= 800:
+        return [two]
+    elif one_current > two_current:
+        return [two]
+    elif two_current > one_current:
+        return [one]
+    else:
+        return []
+
+
+def round_fitness_n(players):
+    donations = []
+    for player in players:
+        donations.append(player.donate())
+
+    wallets = []
+    for donation in donations:
+        wallets.append(69)
+
+    update_savings()
+
+    return __survived_nplayers(players, wallets)
+
+
+def __survived_nplayers(players, wallets):
+    return []
+
+
+def update_savings():
+    pass
+
+"""
+def run_2players(pop, debug):
+    current_round = pop[:]
+    round = 0
+    while len(current_round) > 1:
+        if debug:
+            print(round, len(current_round))
+        random.shuffle(current_round)
+        next_round = []
+        for i in range(1, len(current_round), 2):
+            next_round.extend(round_fitness(current_round[i - 1], current_round[i]))
+        if len(current_round) % 2 == 1:
+            current_round[-1].add_savings(500)
+            next_round.append(current_round[-1])
+        current_round = next_round
+        round += 1
+    return current_round
+"""
+
+"""
 def round_fitness(my, op):
     my_donation = my.donate()
     op_donation = op.donate()
 
-    my.add_savings(op_donation)
-    op.add_savings(my_donation)
     my_current = 500 + op_donation - my_donation
     op_current = 500 + my_donation - op_donation
+
+    my.add_savings(op_donation)
+    op.add_savings(my_donation)
+
     if my_current >= 800:
         return [my]
     elif op_current >= 800:
@@ -20,28 +138,4 @@ def round_fitness(my, op):
     else:
         return []
 
-
-class Tournament:
-
-    def __init__(self, pop, gametype, debug):
-        self.pop = pop
-        self.gametype = gametype
-        self.popsize = len(pop)
-        self.__debug = debug
-
-    def run_2players(self):
-        current_round = self.pop[:]
-        round = 0
-        while len(current_round) > 1:
-            if self.__debug:
-                print(round, len(current_round))
-            random.shuffle(current_round)
-            next_round = []
-            for i in range(1, len(current_round), 2):
-                next_round.extend(round_fitness(current_round[i - 1], current_round[i]))
-            if len(current_round) % 2 == 1:
-                current_round[-1].add_savings(500)
-                next_round.append(current_round[-1])
-            current_round = next_round
-            round += 1
-        return current_round
+"""
