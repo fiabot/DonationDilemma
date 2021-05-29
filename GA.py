@@ -71,13 +71,13 @@ class GA:
                 print("Tree", best.tree)
 
             #Elitism
-            #elites = self.toolbox.get_elites(new_pop)
-            #pop = elites
+            elites = self.toolbox.get_elites(new_pop)
+            pop = elites
 
             #select indivuals
             #this will replace the previous generation, but with mostly good indivuals
             #because select will replace indivuals
-            pop = self.toolbox.select(new_pop, len(new_pop))
+            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))
 
             self.toolbox.reset(pop)
 
