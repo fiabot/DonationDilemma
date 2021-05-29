@@ -38,8 +38,8 @@ for node in g.nodes:
 print(g.nodes.data())
 
 write_dot(g,'test.dot')
-pos =graphviz_layout(g, prog='dot')
-#pos = nx.planar_layout(g,center = edges[0])
+#pos =graphviz_layout(g, prog='dot')
+pos = nx.planar_layout(g,center = edges[0])
 node_colors = range(len(g))
 M = g.number_of_edges()
 
