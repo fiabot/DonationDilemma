@@ -10,7 +10,7 @@ import random
 from graphviz import Digraph
 import  networkx as nx
 import matplotlib.pyplot as plt
-from networkx.drawing.nx_agraph import write_dot, graphviz_layout
+#from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 
 
 pset = gp.PrimitiveSet("main", 2)
