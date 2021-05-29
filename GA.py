@@ -10,10 +10,11 @@ import random
 import Agent as a
 import Tournament
 
-def evaluate(agents):
-    Tournament.run_2players(agents)
+def evaluate(agents, num_tours):
+    for i in range(num_tours):
+        Tournament.run_2players(agents)
     for a in agents:
-        a.fitness.values = a.savings,
+        a.fitness.values = a.savings / num_tours,
 
 def reset(agents):
     for a in agents:
@@ -36,7 +37,7 @@ class GA:
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         #toolbox.register("tourament", creator.Tourament, )
-        self.toolbox.register("evaluate", evaluate)  # <- set up method or evaluation
+        self.toolbox.register("evaluate", evaluate, num_tours = 10)  # <- set up method or evaluation
         self.toolbox.register("select", tools.selTournament, tournsize=3)  # <- select indivuals from a tourment style thingy
         self.toolbox.register("mate", a.mate, max_height = 17, toolbox = self.toolbox)
         self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)

@@ -38,12 +38,24 @@ def round_fitness_2players(one, two, round):
     """
     one_donation = one.donate(two, round)
     two_donation = two.donate(one, round)
-    one_money = __individual_result(one_donation, two_donation)
-    two_money = __individual_result(two_donation, one_donation)
-    one.add_savings(one_money)
-    two.add_savings(two_money)
-    return __survived_2players(one, two, one_money, two_money)
 
+    if is_valid_donation(one_donation) and is_valid_donation(two_donation):
+        one_money = __individual_result(one_donation, two_donation)
+        two_money = __individual_result(two_donation, one_donation)
+        one.add_savings(one_money)
+        two.add_savings(two_money)
+        return __survived_2players(one, two, one_money, two_money)
+    elif is_valid_donation(one_donation):
+        one.add_savings(500)
+        return [one]
+    elif is_valid_donation(two_donation):
+        two.add_savings(500)
+        return [two]
+    else:
+        return []
+
+def is_valid_donation(donation):
+    return donation <= 500 and donation >= 0
 
 def __individual_result(donating, receiving):
     """
