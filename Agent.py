@@ -9,7 +9,22 @@ def protectedDiv(left, right):
         return left / right
     except ZeroDivisionError:
         return 1
+class RandAgent:
+    def __init__(self):
+        self.savings = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
 
+    def donate(self, other, round):
+        donation = random.randint(0, 500)
+
+        self.hist3 = self.hist2
+        self.hist2 = self.hist1
+        self.hist1 = donation
+        return donation
+    def add_savings(self, amount):
+        self.savings += amount
 
 class Agent:
     def __init__(self, min_height=3, max_height=10, tree=None):

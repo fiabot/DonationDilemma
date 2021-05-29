@@ -98,3 +98,11 @@ class GA:
 if __name__ == "__main__":
     ga = GA(30, 0.5, 0.5, 1)
     pop = ga.run(100, True)
+    #Run random tourament
+    print("Random Game")
+
+    rand = a.RandAgent()
+    agents = pop[:]
+    agents.append(rand)
+    Tournament.run_2players(agents)
+    print("Agent savings:", agents[0].savings, ", rand savings", rand.savings)
