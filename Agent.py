@@ -64,22 +64,23 @@ class Agent:
 
         pset.renameArguments(ARG0="mySave")
         pset.renameArguments(ARG1="opSave")
-        pset.renameArguments(ARG2="myDon1")
-        pset.renameArguments(ARG3="myDon2")
-        pset.renameArguments(ARG4="myDon3")
-        pset.renameArguments(ARG5="opDon1")
-        pset.renameArguments(ARG6="opDon2")
-        pset.renameArguments(ARG7="opDon3")
+        pset.renameArguments(ARG2="myHist1")
+        pset.renameArguments(ARG3="myHist2")
+        pset.renameArguments(ARG4="myHist3")
+        pset.renameArguments(ARG5="opHist1")
+        pset.renameArguments(ARG6="opHist2")
+        pset.renameArguments(ARG7="opHist3")
         pset.renameArguments(ARG8="turn")
 
         self.pset = pset
 
-    def donate(self, mySave, opSave, myDon1, myDon2, myDon3, opDon1, opDon2, opDon3, turn):
+    def donate(self, other, turn):
         """
         Use program tree to give donation
         and update history
         """
-        donation = self.runTree(mySave, opSave, myDon1, myDon2, myDon3, opDon1, opDon2, opDon3, turn)
+
+        donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
         self.hist3 = self.hist2
         self.hist2 = self.hist1
         self.hist1 = donation

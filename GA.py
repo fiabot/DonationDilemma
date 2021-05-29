@@ -9,9 +9,11 @@ import math
 import random
 import Agent as a
 import Tournament
+
 def evaluate(agents):
+    Tournament.run_2players(agents)
     for a in agents:
-        a.savings = random.randint(0, 500)
+        a.fitness.values = a.savings,
 
 def reset(agents):
     for a in agents:
@@ -35,7 +37,7 @@ class GA:
 
         #toolbox.register("tourament", creator.Tourament, )
         self.toolbox.register("evaluate", evaluate)  # <- set up method or evaluation
-        self.toolbox.register("select", tools.selTournament, tournsize=3, fit_attr = "savings")  # <- select indivuals from a tourment style thingy
+        self.toolbox.register("select", tools.selTournament, tournsize=3)  # <- select indivuals from a tourment style thingy
         self.toolbox.register("mate", a.mate, max_height = 17, toolbox = self.toolbox)
         self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
         self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height = 17)
@@ -68,13 +70,13 @@ class GA:
                 print("Tree", best.tree)
 
             #Elitism
-            elites = self.toolbox.get_elites(new_pop)
-            pop = elites
+            #elites = self.toolbox.get_elites(new_pop)
+            #pop = elites
 
             #select indivuals
             #this will replace the previous generation, but with mostly good indivuals
             #because select will replace indivuals
-            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))
+            pop = self.toolbox.select(new_pop, len(new_pop))
 
             self.toolbox.reset(pop)
 
@@ -85,5 +87,5 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(10, 0.5, 0.5, 1)
+    ga = GA(30, 0.5, 0.5, 1)
     pop = ga.run(10, True)

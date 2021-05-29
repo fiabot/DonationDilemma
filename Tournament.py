@@ -18,7 +18,7 @@ def run_2players(pop, debug=False):
         for i in range(1, len(current_round), 2):
             one = current_round[i - 1]
             two = current_round[i]
-            next_round.extend(round_fitness_2players(one, two))
+            next_round.extend(round_fitness_2players(one, two,round))
         if len(current_round) % 2 == 1:
             current_round[-1].add_savings(500)
             next_round.append(current_round[-1])
@@ -27,7 +27,7 @@ def run_2players(pop, debug=False):
     return current_round
 
 
-def round_fitness_2players(one, two):
+def round_fitness_2players(one, two, round):
     """
     conducts the donation process between two agents,
     which therefore updates each agent's total savings
@@ -36,8 +36,8 @@ def round_fitness_2players(one, two):
     :param two: PERRY THE PLATYPUS???
     :return: the victor (if there is one)
     """
-    one_donation = one.donate()
-    two_donation = two.donate()
+    one_donation = one.donate(two, round)
+    two_donation = two.donate(one, round)
     one_money = __individual_result(one_donation, two_donation)
     two_money = __individual_result(two_donation, one_donation)
     one.add_savings(one_money)
@@ -79,7 +79,7 @@ def __survived_2players(one, two, one_current, two_current):
 def round_fitness_n(players):
     donations = []
     for player in players:
-        donations.append(player.donate())
+        donations.append(player.donate()) #TODO fixed donation for n players
 
     wallets = []
     for donation in donations:
