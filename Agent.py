@@ -66,12 +66,13 @@ class Agent:
         initialize starting variables
         :param min_height: minimum tree depth complexity
         :param max_height: maximum tree depth complexity
-        :param tree: the algorithmic tree to copy onto the agent
+        :param tree: the algorithmic tree to copy onto the agent, must use same primative set
         """
         self.create_prim_set()
 
         if tree != None:
-            self.tree = tree  # TODO: doesn't copy tree, this could be a problem
+            tree_copy = gp.PrimitiveTree.from_string(str(tree), self.pset)
+            self.tree = tree_copy
         else:
             expr = gp.genHalfAndHalf(self.pset, min_=min_height, max_=max_height)
             self.tree = gp.PrimitiveTree(expr)
@@ -194,6 +195,8 @@ class Agent:
                 self.tree = gp.mutInsert(self.tree, self.pset)[0]
         self.runTree = gp.compile(self.tree, self.pset)
 
+def copy_agent_tree(agent):
+    return gp.PrimitiveTree.from_string(str(agent.tree), agent.pset)
 
 def mate(agent1, agent2, max_height = 17, toolbox = None, i = 0):
     """
@@ -205,7 +208,9 @@ def mate(agent1, agent2, max_height = 17, toolbox = None, i = 0):
     :param max_height: max height of tree
     :return: two new agents
     """
-    newTree1, newTree2 = gp.cxOnePoint(agent1.tree, agent2.tree)
+    parent1 = copy_agent_tree(agent1)
+    parent2 = copy_agent_tree(agent2)
+    newTree1, newTree2 = gp.cxOnePoint(parent1, parent2)
     if newTree1.height > max_height:
         newTree1 = random.choice([agent1.tree, agent2.tree])
 
@@ -228,7 +233,8 @@ def mutate(agent, expr, max_height = 17):
     :return: a tuple containing the agent, mutated or not
     """
     #expr = gp.genHalfAndHalf(agent.pset, 0, 2)
-    new_tree = gp.mutUniform(agent.tree, expr, agent.pset)
+    tree_copy = copy_agent_tree(agent)
+    new_tree = gp.mutUniform(tree_copy, expr, agent.pset)
     new_tree = new_tree[0]
     if new_tree.height <= max_height:
         agent.tree = new_tree
@@ -237,8 +243,6 @@ def mutate(agent, expr, max_height = 17):
 
 
 if __name__ == "__main__":
-
-
     for i in range(1000):
         agent = Agent(1, 5)
         agent2 = Agent(1, 5)
