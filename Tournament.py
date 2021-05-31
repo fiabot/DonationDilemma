@@ -1,10 +1,14 @@
 import random
 
 
+# a couple global variables for ease
+wallet = 500
+threshold = 800
+
 def run_2players(pop, debug=False):
     """
-    The main tournament for a series of 2 agent rounds
-    :param pop: The full population of agents
+    The main tournament for a series of two agent rounds
+    :param pop: the full population of agents
     :param debug: switch to turn on debug mode
     :return: the victor (may the odds be ever in your favor)
     """
@@ -15,12 +19,14 @@ def run_2players(pop, debug=False):
             print(round, len(current_round))
         random.shuffle(current_round)
         next_round = []
+
         for i in range(1, len(current_round), 2):
             one = current_round[i - 1]
             two = current_round[i]
-            next_round.extend(round_fitness_2players(one, two,round))
+            next_round.extend(round_fitness_2players(one, two, round))
+
         if len(current_round) % 2 == 1:
-            current_round[-1].add_savings(500)
+            current_round[-1].add_savings(wallet)
             next_round.append(current_round[-1])
         current_round = next_round
         round += 1
@@ -40,22 +46,30 @@ def round_fitness_2players(one, two, round):
     two_donation = two.donate(one, round)
 
     if is_valid_donation(one_donation) and is_valid_donation(two_donation):
-        one_money = __individual_result(one_donation, two_donation)
-        two_money = __individual_result(two_donation, one_donation)
-        one.add_savings(one_money)
-        two.add_savings(two_money)
-        return __survived_2players(one, two, one_money, two_money)
+        one_current = __individual_result(one_donation, two_donation)
+        two_current = __individual_result(two_donation, one_donation)
+        one.add_savings(one_current)
+        two.add_savings(two_current)
+        return __survived_2players(one, two, one_current, two_current)
+
     elif is_valid_donation(one_donation):
-        one.add_savings(500)
+        one.add_savings(wallet)
         return [one]
     elif is_valid_donation(two_donation):
-        two.add_savings(500)
+        two.add_savings(wallet)
         return [two]
     else:
         return []
 
+
 def is_valid_donation(donation):
-    return donation <= 500 and donation >= 0
+    """
+    a check to confirm that the value donating by an agent is legal
+    in the context of the Donation Dilemma
+    :param donation: the int value of an agent's donation
+    """
+    return donation <= wallet and donation >= 0
+
 
 def __individual_result(donating, receiving):
     """
@@ -64,7 +78,7 @@ def __individual_result(donating, receiving):
     :param receiving: the collective amount this agent is getting from others
     :return: the agent's final amount of the round
     """
-    return 500 + receiving - donating
+    return wallet + receiving - donating
 
 
 def __survived_2players(one, two, one_current, two_current):
@@ -76,9 +90,9 @@ def __survived_2players(one, two, one_current, two_current):
     :param two_current: the wallet of agent two
     :return: the survived agent (if there is one)
     """
-    if one_current >= 800:
+    if one_current >= threshold:
         return [one]
-    elif two_current >= 800:
+    elif two_current >= threshold:
         return [two]
     elif one_current > two_current:
         return [two]
@@ -108,46 +122,3 @@ def __survived_nplayers(players, wallets):
 
 def update_savings():
     pass
-
-"""
-def run_2players(pop, debug):
-    current_round = pop[:]
-    round = 0
-    while len(current_round) > 1:
-        if debug:
-            print(round, len(current_round))
-        random.shuffle(current_round)
-        next_round = []
-        for i in range(1, len(current_round), 2):
-            next_round.extend(round_fitness(current_round[i - 1], current_round[i]))
-        if len(current_round) % 2 == 1:
-            current_round[-1].add_savings(500)
-            next_round.append(current_round[-1])
-        current_round = next_round
-        round += 1
-    return current_round
-"""
-
-"""
-def round_fitness(my, op):
-    my_donation = my.donate()
-    op_donation = op.donate()
-
-    my_current = 500 + op_donation - my_donation
-    op_current = 500 + my_donation - op_donation
-
-    my.add_savings(op_donation)
-    op.add_savings(my_donation)
-
-    if my_current >= 800:
-        return [my]
-    elif op_current >= 800:
-        return [op]
-    elif my_current > op_current:
-        return [op]
-    elif op_current > my_current:
-        return [my]
-    else:
-        return []
-
-"""
