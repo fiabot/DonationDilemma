@@ -9,8 +9,9 @@ import math
 import random
 import Agent as a
 import Tournament
+import Graph
 
-
+MAX_HEIGHT = 5
 def evaluate(agents, num_tours):
     """
     averaging the results of multiple tournaments
@@ -55,15 +56,15 @@ class GA:
         #creator.create("Tourament", Tournament.Tournament)
 
         self.toolbox = base.Toolbox()
-        self.toolbox.register("individual", creator.Individual)
+        self.toolbox.register("individual", creator.Individual, max_height = MAX_HEIGHT)
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         #toolbox.register("tourament", creator.Tourament, )
         self.toolbox.register("evaluate", evaluate, num_tours = 10)  # <- set up method or evaluation
         self.toolbox.register("select", tools.selTournament, tournsize=3)  # <- select indivuals from a tourment style thingy
-        self.toolbox.register("mate", a.mate, max_height = 17, toolbox = self.toolbox)
+        self.toolbox.register("mate", a.mate, max_height = MAX_HEIGHT, toolbox = self.toolbox)
         self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-        self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height = 17)
+        self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height = MAX_HEIGHT)
         self.toolbox.register("get_elites", tools.selBest, k=self.elites)
         self.toolbox.register("get_best", tools.selBest, k=1)
         self.toolbox.register("reset", reset)
@@ -133,3 +134,8 @@ if __name__ == "__main__":
     agents.append(rand)
     Tournament.run_2players(agents)
     print("Agent savings:", agents[0].savings, ", rand savings", rand.savings)
+
+    #display an agent
+    print(agents[0].tree)
+    print(agents[0].tree.height)
+    Graph.graphAgent(agents[0], title = "An Agent")

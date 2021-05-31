@@ -6,7 +6,7 @@ import copy
 #import pygraphviz as pgv
 
 
-def protectedDiv(numer, denom):
+def div(numer, denom):
     """
     division that considers undefined situation
     :param numer: the numerator in division
@@ -58,7 +58,7 @@ class RandAgent:
 
 class Agent:
 
-    def __init__(self, min_height=3, max_height=10, tree=None):
+    def __init__(self, min_height=3, max_height=5, tree=None):
         """
         Either create a new agent given a tree or
         create a random tree
@@ -112,7 +112,7 @@ class Agent:
         pset.addPrimitive(operator.mul, 2)
         pset.addPrimitive(operator.abs, 1)
         pset.addPrimitive(operator.sub, 2)
-        pset.addPrimitive(protectedDiv, 2)
+        pset.addPrimitive(div, 2)
         # pset.addEphemeralConstant("random", lambda: random.randint(-10, 10))
 
         pset.renameArguments(ARG0="mySave")
@@ -195,7 +195,7 @@ class Agent:
         self.runTree = gp.compile(self.tree, self.pset)
 
 
-def mate(agent1, agent2, max_height = 17, toolbox = None):
+def mate(agent1, agent2, max_height = 17, toolbox = None, i = 0):
     """
     Return the offspring of a one point crossover between two
     agents. If one offspring exceeds the max height, return one
@@ -237,11 +237,12 @@ def mutate(agent, expr, max_height = 17):
 
 
 if __name__ == "__main__":
-    agent = Agent(1, 5)
-    agent2 = Agent(1,5)
-    print(agent.donate(0, 300, 20, 250, 0, 10, 400, 0, 4))
-    agent.mutate(muts=1)
-    print(agent.donate(0, 300, 20, 250, 0, 10, 400, 0, 4))
 
-    a1, a2 = mate(agent, agent2)
-    print(a1.tree)
+
+    for i in range(1000):
+        agent = Agent(1, 5)
+        agent2 = Agent(1, 5)
+        a1, a2 = mate(agent, agent2, max_height=6, i = i)
+        if(a1.tree.height > 6 or a2.tree.height > 6):
+            print("Offsprint iteration:", i)
+            print(a1.tree.height, a2.tree.height)
