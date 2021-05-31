@@ -10,18 +10,40 @@ import random
 import Agent as a
 import Tournament
 
+
 def evaluate(agents, num_tours):
+    """
+    averaging the results of multiple tournaments
+    with the same collection of agents
+    :param agents: a collection of different agents
+    :param num_tours: the amount of tournaments for a single collection of agents
+    """
     for i in range(num_tours):
         Tournament.run_2players(agents)
     for a in agents:
         a.fitness.values = a.savings / num_tours,
 
+
 def reset(agents):
+    """
+    takes a whole collection of agents and
+    reverts them back to their original state
+    :param agents: a collection of different agents
+    """
     for a in agents:
         a.reset()
 
+
 class GA:
+
     def __init__(self, pop_size, xover, mut, elites):
+        """
+        main contructor for the genetic algorithm
+        :param pop_size: number of agents in the pop
+        :param xover: crossover rate
+        :param mut: mutation rate
+        :param elites: number of elites to maintain
+        """
 
         self.pop_size = pop_size
         self.xover = xover
@@ -55,7 +77,12 @@ class GA:
         self.logbook = tools.Logbook()
         self.logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
+
     def run(self, max_gens, debug = False):
+        """
+        the main performance
+        :param max_gens: total number of generations for GA to perform
+        """
         gen = 0
         pop = self.toolbox.population()
 
