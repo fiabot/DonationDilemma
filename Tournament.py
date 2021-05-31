@@ -1,7 +1,7 @@
 import random
 
 
-# a couple global variables for ease
+# a couple global variables for ease/constants
 wallet = 500
 threshold = 800
 
