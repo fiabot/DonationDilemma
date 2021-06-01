@@ -1,6 +1,7 @@
 import deap.gp as gp
 import operator
 from deap import base
+import math
 import random
 import copy
 #import pygraphviz as pgv
@@ -18,6 +19,19 @@ def div(numer, denom):
     except ZeroDivisionError:
         return 1
 
+def randomNum(min = 0, max = 500):
+    return random.randint(min, max)
+
+pset = gp.PrimitiveSet("MAIN", 1)
+pset.addPrimitive(operator.add, 2)
+pset.addPrimitive(operator.sub, 2)
+pset.addPrimitive(operator.mul, 2)
+pset.addPrimitive(div, 2)
+pset.addPrimitive(operator.neg, 1)
+pset.addPrimitive(math.cos, 1)
+pset.addPrimitive(math.sin, 1)
+pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))
+
 
 class RandAgent:
 
@@ -31,6 +45,11 @@ class RandAgent:
         self.hist2 = 0
         self.hist3 = 0
 
+    def reset(self):
+        self.savings = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
 
     def donate(self, other, round):
         """
@@ -101,7 +120,6 @@ class Agent:
         self.hist2 = 0
         self.hist3 = 0
 
-
     def create_prim_set(self):
         """
         Set up the basic operations and arguments for
@@ -114,7 +132,20 @@ class Agent:
         pset.addPrimitive(operator.abs, 1)
         pset.addPrimitive(operator.sub, 2)
         pset.addPrimitive(div, 2)
-        # pset.addEphemeralConstant("random", lambda: random.randint(-10, 10))
+        pset.addTerminal(0)
+        pset.addTerminal(500)
+        #pset.addTerminal(random.randint(0,500))
+        #pset.addEphemeralConstant("Random", randomNum, int)
+
+        """pset = gp.PrimitiveSet("MAIN", 1)
+        pset.addPrimitive(operator.add, 2)
+        pset.addPrimitive(operator.sub, 2)
+        pset.addPrimitive(operator.mul, 2)
+        pset.addPrimitive(div, 2)
+        pset.addPrimitive(operator.neg, 1)
+        pset.addPrimitive(math.cos, 1)
+        pset.addPrimitive(math.sin, 1)
+        pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))"""
 
         pset.renameArguments(ARG0="mySave")
         pset.renameArguments(ARG1="opSave")
@@ -138,8 +169,11 @@ class Agent:
         :param round: the current round number
         :return: a donation from this agent to another
         """
-
-        donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
+        try:
+            donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
+        except:
+            print("Holy shit the donation was really big")
+            donation = 600
         self.hist3 = self.hist2
         self.hist2 = self.hist1
         self.hist1 = donation
@@ -243,10 +277,9 @@ def mutate(agent, expr, max_height = 17):
 
 
 if __name__ == "__main__":
-    for i in range(1000):
-        agent = Agent(1, 5)
-        agent2 = Agent(1, 5)
-        a1, a2 = mate(agent, agent2, max_height=6, i = i)
-        if(a1.tree.height > 6 or a2.tree.height > 6):
-            print("Offsprint iteration:", i)
-            print(a1.tree.height, a2.tree.height)
+    print(randomNum())
+    agent = Agent(1, 5)
+    agent2 = Agent(1, 5)
+    a1, a2 = mate(agent, agent2, max_height=6)
+    print("Offsprint iteration:")
+    print(a1.tree.height, a2.tree.height)

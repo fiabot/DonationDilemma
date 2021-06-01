@@ -23,6 +23,7 @@ def evaluate(agents, num_tours):
         Tournament.run_2players(agents)
     for a in agents:
         a.fitness.values = a.savings / num_tours,
+
 def average_savings(pop):
     s = 0
     for a in pop:
@@ -35,6 +36,7 @@ def pop_v_pop(pop1, pop2, num_tours):
         Tournament.run_2players(total)
     for a in total:
         a.savings = a.savings / num_tours
+
 
     return average_savings(pop1), average_savings(pop2)
 
@@ -50,7 +52,7 @@ def reset(agents):
 
 class GA:
 
-    def __init__(self, pop_size, xover, mut, elites):
+    def __init__(self, pop_size, xover, mut, elites, rand_agents = 20):
         """
         main contructor for the genetic algorithm
         :param pop_size: number of agents in the pop
@@ -64,16 +66,19 @@ class GA:
         self.mut = mut
         self.elites = elites
 
+
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", a.Agent, fitness=creator.FitnessMax)
+        creator.create("RandomAgent", a.RandAgent, fitness = creator.FitnessMax)
         #creator.create("Tourament", Tournament.Tournament)
 
         self.toolbox = base.Toolbox()
         self.toolbox.register("individual", creator.Individual, max_height = MAX_HEIGHT)
+        self.toolbox.register("random", creator.RandomAgent)
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         #toolbox.register("tourament", creator.Tourament, )
-        self.toolbox.register("evaluate", evaluate, num_tours = 10)  # <- set up method or evaluation
+        self.toolbox.register("evaluate", evaluate, num_tours = 30)  # <- set up method or evaluation
         self.toolbox.register("select", tools.selTournament, tournsize=3)  # <- select indivuals from a tourment style thingy
         self.toolbox.register("mate", a.mate, max_height = MAX_HEIGHT, toolbox = self.toolbox)
         self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
@@ -81,7 +86,6 @@ class GA:
         self.toolbox.register("get_elites", tools.selBest, k=self.elites)
         self.toolbox.register("get_best", tools.selBest, k=1)
         self.toolbox.register("top_half", tools.selBest, k = int(self.pop_size / 2))
-        self.toolbox.register("reset", reset)
         self.toolbox.register("reset", reset)
 
         self.stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -93,6 +97,7 @@ class GA:
         self.logbook = tools.Logbook()
         self.logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
+        self.rand_agents = [self.toolbox.random() for i in range(rand_agents)]
 
     def run(self, max_gens, debug = False):
         """
@@ -112,7 +117,7 @@ class GA:
             #new_pop = pop
 
             #evaluate population
-            self.toolbox.evaluate(new_pop)
+            self.toolbox.evaluate(new_pop + self.rand_agents)
 
             record = self.stats.compile(new_pop)
             self.logbook.record(gen=gen, evals=len(new_pop), **record)
@@ -127,6 +132,9 @@ class GA:
             elites = self.toolbox.get_elites(new_pop)
             pop = elites
 
+
+
+
             #select indivuals
             #this will replace the previous generation, but with mostly good indivuals
             #because select will replace indivuals
@@ -139,18 +147,20 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(1024, 0.5, 0.5, 1)
+    ga = GA(50, 0.3, 0.3, 1)
     pop, log, toolbox = ga.run(100, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [a.RandAgent() for i in range(len(best))]
 
     #run random trials
-    avg_agent, avg_rand  = pop_v_pop(best, random, 10)
+    avg_agent, avg_rand = pop_v_pop(best, random, 30)
     print("Agent Average:", avg_agent, "Random Average:", avg_rand)
 
 
     #display an agent
-    print(pop[0].tree)
-    print(pop[0].tree.height)
-    Graph.graphAgent(pop[0], title = "An Agent")
+
+
+    for i in best:
+        print(i.tree)
+        #Graph.graphAgent(i, title = "Top half of Agents")
