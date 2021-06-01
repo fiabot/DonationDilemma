@@ -11,7 +11,7 @@ import Agent as a
 import Tournament
 import Graph
 
-MAX_HEIGHT = 5
+MAX_HEIGHT = 9
 def evaluate(agents, num_tours):
     """
     averaging the results of multiple tournaments
@@ -23,7 +23,20 @@ def evaluate(agents, num_tours):
         Tournament.run_2players(agents)
     for a in agents:
         a.fitness.values = a.savings / num_tours,
+def average_savings(pop):
+    s = 0
+    for a in pop:
+        s += a.savings
+    return s / len(pop)
 
+def pop_v_pop(pop1, pop2, num_tours):
+    total = pop1[:] + pop2[:]
+    for i in range(num_tours):
+        Tournament.run_2players(total)
+    for a in total:
+        a.savings = a.savings / num_tours
+
+    return average_savings(pop1), average_savings(pop2)
 
 def reset(agents):
     """
@@ -67,6 +80,8 @@ class GA:
         self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height = MAX_HEIGHT)
         self.toolbox.register("get_elites", tools.selBest, k=self.elites)
         self.toolbox.register("get_best", tools.selBest, k=1)
+        self.toolbox.register("top_half", tools.selBest, k = int(self.pop_size / 2))
+        self.toolbox.register("reset", reset)
         self.toolbox.register("reset", reset)
 
         self.stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -120,22 +135,22 @@ class GA:
             self.toolbox.reset(pop)
 
             gen += 1
-        return pop, self.logbook
+        return pop, self.logbook, self.toolbox
 
 
 if __name__ == "__main__":
-    ga = GA(30, 0.5, 0.5, 1)
-    pop, log = ga.run(100, True)
-    #Run random tourament
-    print("Random Game")
+    ga = GA(1024, 0.5, 0.5, 1)
+    pop, log, toolbox = ga.run(100, True)
+    #get top half
+    best = toolbox.top_half(pop)
+    random = [a.RandAgent() for i in range(len(best))]
 
-    rand = a.RandAgent()
-    agents = pop[:]
-    agents.append(rand)
-    Tournament.run_2players(agents)
-    print("Agent savings:", agents[0].savings, ", rand savings", rand.savings)
+    #run random trials
+    avg_agent, avg_rand  = pop_v_pop(best, random, 10)
+    print("Agent Average:", avg_agent, "Random Average:", avg_rand)
+
 
     #display an agent
-    print(agents[0].tree)
-    print(agents[0].tree.height)
-    Graph.graphAgent(agents[0], title = "An Agent")
+    print(pop[0].tree)
+    print(pop[0].tree.height)
+    Graph.graphAgent(pop[0], title = "An Agent")
