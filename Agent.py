@@ -172,7 +172,6 @@ class Agent:
         try:
             donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
         except:
-            print("Holy shit the donation was really big")
             donation = 600
         self.hist3 = self.hist2
         self.hist2 = self.hist1

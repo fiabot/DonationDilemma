@@ -10,6 +10,7 @@ import random
 import Agent as a
 import Tournament
 import Graph
+import pickle
 
 MAX_HEIGHT = 9
 def evaluate(agents, num_tours):
@@ -112,6 +113,8 @@ class GA:
             #print(self.toolbox.individual(tree =pop[0].tree))
         while gen < max_gens:
 
+
+
             # Vary the population -- not working bc mutate and xover return agents
             new_pop = algorithms.varAnd(pop, self.toolbox, self.xover, self.mut)
             #new_pop = pop
@@ -128,13 +131,9 @@ class GA:
                 #print("Generation:", gen, "best fitness:", best.savings)
                 #print("Tree", best.tree)
 
-            #Elitism
-            elites = self.toolbox.get_elites(new_pop)
+            # Elitism
+            elites = self.toolbox.get_elites(pop)
             pop = elites
-
-
-
-
             #select indivuals
             #this will replace the previous generation, but with mostly good indivuals
             #because select will replace indivuals
@@ -147,11 +146,15 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(50, 0.3, 0.3, 1)
-    pop, log, toolbox = ga.run(100, True)
+    ga = GA(1024, 0.3, 0.3, 1)
+    pop, log, toolbox = ga.run(10000, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [a.RandAgent() for i in range(len(best))]
+
+    #pickle population
+    pop_trees = [agent.tree for agent in pop]
+    pickle.dump(pop_trees, open("LastGeneration.p", "wb"))
 
     #run random trials
     avg_agent, avg_rand = pop_v_pop(best, random, 30)
@@ -159,8 +162,5 @@ if __name__ == "__main__":
 
 
     #display an agent
-
-
-    for i in best:
-        print(i.tree)
-        #Graph.graphAgent(i, title = "Top half of Agents")
+    print(best[0].tree)
+    Graph.graphAgent(best[0], title = "Top half of Agents")
