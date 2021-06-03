@@ -14,7 +14,7 @@ import pickle
 import time
 
 MAX_HEIGHT = 4
-TIMETHRES = 1
+TIMETHRES = 2
 def evaluate(agents, num_tours, debug = False):
     """
     averaging the results of multiple tournaments
