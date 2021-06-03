@@ -12,6 +12,7 @@ import Tournament
 import Graph
 import pickle
 import time
+import CustomAgents
 
 MAX_HEIGHT = 4
 TIMETHRES = 2
@@ -60,7 +61,7 @@ def reset(agents):
 
 class GA:
 
-    def __init__(self, pop_size, xover, mut, elites, rand_agents = 20):
+    def __init__(self, pop_size, xover, mut, elites, rand_agents = 20, human_agents = 20):
         """
         main contructor for the genetic algorithm
         :param pop_size: number of agents in the pop
@@ -78,11 +79,18 @@ class GA:
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", a.Agent, fitness=creator.FitnessMax)
         creator.create("RandomAgent", a.RandAgent, fitness = creator.FitnessMax)
+        creator.create("GenerousAgent", CustomAgents.GenerousAgent, fitness = creator.FitnessMax)
+        creator.create("StingyAgent", CustomAgents.StingyAgent, fitness=creator.FitnessMax)
+        creator.create("TitForTatAgent", CustomAgents.TitForTatAgent, fitness=creator.FitnessMax)
+        creator.create("AveragingAgent", CustomAgents.AveragingAgent, fitness=creator.FitnessMax)
+        creator.create("VengfulAgent", CustomAgents.VengefulAgent, fitness=creator.FitnessMax)
         #creator.create("Tourament", Tournament.Tournament)
 
         self.toolbox = base.Toolbox()
         self.toolbox.register("individual", creator.Individual, max_height = MAX_HEIGHT)
         self.toolbox.register("random", creator.RandomAgent)
+        self.toolbox.register("human", random.choice([creator.GenerousAgent, creator.StingyAgent, creator.TitForTatAgent,
+                                                      creator.AveragingAgent, creator.VengfulAgent] ))
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         #toolbox.register("tourament", creator.Tourament, )
@@ -106,6 +114,7 @@ class GA:
         self.logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
         self.rand_agents = [self.toolbox.random() for i in range(rand_agents)]
+        self.human_agents = [self.toolbox.human() for i in range(human_agents)]
 
     def run(self, max_gens, debug = False):
         """
@@ -119,7 +128,8 @@ class GA:
         if debug:
             print(pop[0].tree)
             #print(self.toolbox.individual(tree =pop[0].tree))
-
+        self.random_test = [a.RandAgent() for i in range(int(self.pop_size/2))]
+        self.human_test = [self.toolbox.human() for i in range(int(self.pop_size / 2))]
         while gen < max_gens:
 
             # Vary the population -- not working bc mutate and xover return agents
@@ -127,7 +137,7 @@ class GA:
             #new_pop = pop
 
             #evaluate population
-            self.toolbox.evaluate(new_pop + self.rand_agents, debug = debug)
+            self.toolbox.evaluate(new_pop + self.rand_agents + self.human_agents, debug = debug)
 
             record = self.stats.compile(new_pop)
             self.logbook.record(gen=gen, evals=len(new_pop), **record)
@@ -137,6 +147,14 @@ class GA:
                 print(self.logbook.stream)
                 #print("Generation:", gen, "best fitness:", best.savings)
                 #print("Tree", best.tree)
+                if gen % 3 == 0:
+                    best = self.toolbox.top_half(pop)
+
+                    avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
+                    print("Agent Average:", avg_agent, "Random Average:", avg_rand)
+
+                    avg_agent, avg_human= pop_v_pop(best, self.human_test, 30)
+                    print("Agent Average:", avg_agent, "Human Average:", avg_human)
 
             # Elitism
             elites = self.toolbox.get_elites(pop)
@@ -153,19 +171,26 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(1024, 0.3, 0.3, 1)
-    pop, log, toolbox = ga.run(10000, True)
+    ga = GA(1024, 0.3, 0.3, 100, rand_agents = 300)
+    pop, log, toolbox = ga.run(10, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [a.RandAgent() for i in range(len(best))]
+    human = [toolbox.human() for i in range(len(best))]
 
     #pickle population
     pop_trees = [agent.tree for agent in pop]
     pickle.dump(pop_trees, open("LastGeneration.p", "wb"))
 
+    print("-------------------FINAL EVALUATIONS -------------------")
     #run random trials
-    avg_agent, avg_rand = pop_v_pop(best, random, 30)
+    avg_agent, avg_rand = pop_v_pop(best, random, 50)
     print("Agent Average:", avg_agent, "Random Average:", avg_rand)
+    avg_agent, avg_human = pop_v_pop(best, human, 50)
+    print("Agent Average:", avg_agent, "Human Average:", avg_human)
+
+    avg_rand, avg_human = pop_v_pop(random, human, 50)
+    print("Random Average:", avg_rand, "Human Average:", avg_human)
 
 
     #display an agent
