@@ -187,6 +187,8 @@ class Agent:
             donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
             if donation > 500 or donation < 0 or math.isnan(donation):
                 donation = 600
+            elif math.isnan(donation):
+                print("Tree create a non-number", self.tree)
         except Exception as exec:
             print("DONATION ERROR", self.tree.height)
             print(exec)

@@ -147,7 +147,7 @@ class GA:
                 print(self.logbook.stream)
                 #print("Generation:", gen, "best fitness:", best.savings)
                 #print("Tree", best.tree)
-                if gen % 3 == 0:
+                if gen % 20 == 0:
                     best = self.toolbox.top_half(pop)
 
                     avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
@@ -171,8 +171,8 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(1024, 0.3, 0.3, 100, rand_agents = 300)
-    pop, log, toolbox = ga.run(10, True)
+    ga = GA(1024, 0.3, 0.3, 100, rand_agents = 300, human_agents= 50)
+    pop, log, toolbox = ga.run(1000, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [a.RandAgent() for i in range(len(best))]
@@ -182,7 +182,9 @@ if __name__ == "__main__":
     pop_trees = [agent.tree for agent in pop]
     pickle.dump(pop_trees, open("LastGeneration.p", "wb"))
 
+    print()
     print("-------------------FINAL EVALUATIONS -------------------")
+    print()
     #run random trials
     avg_agent, avg_rand = pop_v_pop(best, random, 50)
     print("Agent Average:", avg_agent, "Random Average:", avg_rand)
