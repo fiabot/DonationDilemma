@@ -22,7 +22,7 @@ def div(numer, denom):
 def randomNum(min = 0, max = 500):
     return random.randint(min, max)
 
-pset = gp.PrimitiveSet("MAIN", 1)
+"""pset = gp.PrimitiveSet("MAIN", 1)
 pset.addPrimitive(operator.add, 2)
 pset.addPrimitive(operator.sub, 2)
 pset.addPrimitive(operator.mul, 2)
@@ -30,7 +30,7 @@ pset.addPrimitive(div, 2)
 pset.addPrimitive(operator.neg, 1)
 pset.addPrimitive(math.cos, 1)
 pset.addPrimitive(math.sin, 1)
-pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))
+pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))"""
 
 
 class RandAgent:
@@ -136,6 +136,7 @@ class Agent:
         pset.addTerminal(500)
         #pset.addTerminal(random.randint(0,500))
         #pset.addEphemeralConstant("Random", randomNum, int)
+        #pset.addEphemeralConstant("Random", lambda: random.randint(0, 500))
 
         """pset = gp.PrimitiveSet("MAIN", 1)
         pset.addPrimitive(operator.add, 2)
@@ -171,7 +172,11 @@ class Agent:
         """
         try:
             donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
-        except:
+            if donation > 500 or donation < 0:
+                donation = 600
+        except Exception as exec:
+            print("DONATION ERROR", self.tree.height)
+            print(exec)
             donation = 600
         self.hist3 = self.hist2
         self.hist2 = self.hist1

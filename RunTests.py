@@ -4,7 +4,7 @@ import Agent as a
 import Graph
 
 if __name__ == "__main__":
-    ga = GA.GA(1024, 0.3, 0.3, 20)
+    ga = GA.GA(1024, 0.3, 0.3, 1)
     pop, log, toolbox = ga.run(10000, True)
     #get top half
     best = toolbox.top_half(pop)

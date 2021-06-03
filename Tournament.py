@@ -1,9 +1,11 @@
 import random
+import time
 
 
 # a couple global variables for ease/constants
 wallet = 500
 threshold = 800
+TIMETHRES = 1
 
 def run_2players(pop, debug=False):
     """
@@ -13,27 +15,30 @@ def run_2players(pop, debug=False):
     :return: the victor (may the odds be ever in your favor)
     """
     current_round = pop[:]
-    round = 0
+    turn = 0
+    start_time = time.perf_counter()
     while len(current_round) > 1:
         if debug:
-            print(round, len(current_round))
+            timer = time.perf_counter() - start_time
+            if timer > TIMETHRES:
+                print(turn, len(current_round))
         random.shuffle(current_round)
         next_round = []
 
         for i in range(1, len(current_round), 2):
             one = current_round[i - 1]
             two = current_round[i]
-            next_round.extend(round_fitness_2players(one, two, round))
+            next_round.extend(round_fitness_2players(one, two, turn))
 
         if len(current_round) % 2 == 1:
             current_round[-1].add_savings(wallet)
             next_round.append(current_round[-1])
         current_round = next_round
-        round += 1
+        turn += 1
     return current_round
 
 
-def round_fitness_2players(one, two, round):
+def round_fitness_2players(one, two, turn):
     """
     conducts the donation process between two agents,
     which therefore updates each agent's total savings
@@ -42,8 +47,8 @@ def round_fitness_2players(one, two, round):
     :param two: PERRY THE PLATYPUS???
     :return: the victor (if there is one)
     """
-    one_donation = one.donate(two, round)
-    two_donation = two.donate(one, round)
+    one_donation = round(one.donate(two, turn))
+    two_donation = round(two.donate(one, turn))
 
     if is_valid_donation(one_donation) and is_valid_donation(two_donation):
         one_current = __individual_result(one_donation, two_donation)

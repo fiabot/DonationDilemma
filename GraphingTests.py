@@ -7,7 +7,7 @@ import numpy
 import operator
 import math
 import random
-from graphviz import Digraph
+#from graphviz import Digraph
 import  networkx as nx
 import matplotlib.pyplot as plt
 #from networkx.drawing.nx_agraph import write_dot, graphviz_layout

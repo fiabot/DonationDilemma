@@ -11,17 +11,24 @@ import Agent as a
 import Tournament
 import Graph
 import pickle
+import time
 
-MAX_HEIGHT = 9
-def evaluate(agents, num_tours):
+MAX_HEIGHT = 4
+TIMETHRES = 1
+def evaluate(agents, num_tours, debug = False):
     """
     averaging the results of multiple tournaments
     with the same collection of agents
     :param agents: a collection of different agents
     :param num_tours: the amount of tournaments for a single collection of agents
     """
+    start_time = time.perf_counter()
     for i in range(num_tours):
-        Tournament.run_2players(agents)
+        if debug:
+            timer = time.perf_counter() - start_time
+            if(timer > TIMETHRES):
+                print("Tourament", i)
+        Tournament.run_2players(agents, debug = debug)
     for a in agents:
         a.fitness.values = a.savings / num_tours,
 
@@ -107,20 +114,20 @@ class GA:
         """
         gen = 0
         pop = self.toolbox.population()
+        ex_debug = False
 
         if debug:
             print(pop[0].tree)
             #print(self.toolbox.individual(tree =pop[0].tree))
+
         while gen < max_gens:
-
-
 
             # Vary the population -- not working bc mutate and xover return agents
             new_pop = algorithms.varAnd(pop, self.toolbox, self.xover, self.mut)
             #new_pop = pop
 
             #evaluate population
-            self.toolbox.evaluate(new_pop + self.rand_agents)
+            self.toolbox.evaluate(new_pop + self.rand_agents, debug = debug)
 
             record = self.stats.compile(new_pop)
             self.logbook.record(gen=gen, evals=len(new_pop), **record)
