@@ -4,8 +4,8 @@ import Agent as a
 import Graph
 
 if __name__ == "__main__":
-    ga = GA.GA(1024, 0.3, 0.3, 1)
-    pop, log, toolbox = ga.run(10000, True)
+    ga = GA.GA(1024, 0.3, 0.3, 20)
+    pop, log, toolbox = ga.run(100000, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [a.RandAgent() for i in range(len(best))]

@@ -18,6 +18,12 @@ def div(numer, denom):
         return numer / denom
     except ZeroDivisionError:
         return 1
+def clamp(number, small, large):
+    if number < small:
+        number = small
+    elif number > large:
+        number = large
+    return number
 
 def randomNum(min = 0, max = 500):
     return random.randint(min, max)
@@ -31,6 +37,32 @@ pset.addPrimitive(operator.neg, 1)
 pset.addPrimitive(math.cos, 1)
 pset.addPrimitive(math.sin, 1)
 pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))"""
+
+pset = gp.PrimitiveSet("main", 9)
+pset.addPrimitive(max, 2)
+pset.addPrimitive(min, 2)
+pset.addPrimitive(clamp, 3)
+pset.addPrimitive(operator.add, 2)
+pset.addPrimitive(operator.mul, 2)
+pset.addPrimitive(operator.abs, 1)
+pset.addPrimitive(operator.sub, 2)
+pset.addPrimitive(div, 2)
+#pset.addEphemeralConstant("Rand101", lambda: random.random() * 500)
+pset.addTerminal(2)
+pset.addTerminal(3)
+for i in range(0, 500, 50):
+    pset.addTerminal(i)
+
+pset.renameArguments(ARG0="mySave")
+pset.renameArguments(ARG1="opSave")
+pset.renameArguments(ARG2="myHist1")
+pset.renameArguments(ARG3="myHist2")
+pset.renameArguments(ARG4="myHist3")
+pset.renameArguments(ARG5="opHist1")
+pset.renameArguments(ARG6="opHist2")
+pset.renameArguments(ARG7="opHist3")
+pset.renameArguments(ARG8="turn")
+
 
 
 class RandAgent:
@@ -125,18 +157,7 @@ class Agent:
         Set up the basic operations and arguments for
         the program tree
         """
-        pset = gp.PrimitiveSet("main", 9)
-        pset.addPrimitive(max, 2)
-        pset.addPrimitive(operator.add, 2)
-        pset.addPrimitive(operator.mul, 2)
-        pset.addPrimitive(operator.abs, 1)
-        pset.addPrimitive(operator.sub, 2)
-        pset.addPrimitive(div, 2)
-        pset.addTerminal(0)
-        pset.addTerminal(500)
-        #pset.addTerminal(random.randint(0,500))
-        #pset.addEphemeralConstant("Random", randomNum, int)
-        #pset.addEphemeralConstant("Random", lambda: random.randint(0, 500))
+
 
         """pset = gp.PrimitiveSet("MAIN", 1)
         pset.addPrimitive(operator.add, 2)
@@ -148,15 +169,7 @@ class Agent:
         pset.addPrimitive(math.sin, 1)
         pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))"""
 
-        pset.renameArguments(ARG0="mySave")
-        pset.renameArguments(ARG1="opSave")
-        pset.renameArguments(ARG2="myHist1")
-        pset.renameArguments(ARG3="myHist2")
-        pset.renameArguments(ARG4="myHist3")
-        pset.renameArguments(ARG5="opHist1")
-        pset.renameArguments(ARG6="opHist2")
-        pset.renameArguments(ARG7="opHist3")
-        pset.renameArguments(ARG8="turn")
+
 
         self.pset = pset
 
@@ -172,7 +185,7 @@ class Agent:
         """
         try:
             donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
-            if donation > 500 or donation < 0:
+            if donation > 500 or donation < 0 or math.isnan(donation):
                 donation = 600
         except Exception as exec:
             print("DONATION ERROR", self.tree.height)

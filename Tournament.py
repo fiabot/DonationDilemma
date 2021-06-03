@@ -127,3 +127,8 @@ def __survived_nplayers(players, wallets):
 
 def update_savings():
     pass
+
+if __name__ == "__main__":
+    print(is_valid_donation(500))
+    print(is_valid_donation(-1))
+    print(is_valid_donation(501))
