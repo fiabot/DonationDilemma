@@ -13,6 +13,7 @@ import Graph
 import pickle
 import time
 import CustomAgents
+import matplotlib.pyplot as plt
 
 MAX_HEIGHT = 4
 TIMETHRES = 2
@@ -111,10 +112,16 @@ class GA:
         self.stats.register("max", numpy.max)
 
         self.logbook = tools.Logbook()
-        self.logbook.header = "gen", "evals", "std", "min", "avg", "max"
+        self.logbook.header = "gen", "evals", "rand", "hum", "std", "min", "avg", "max"
 
         self.rand_agents = [self.toolbox.random() for i in range(rand_agents)]
         self.human_agents = [self.toolbox.human() for i in range(human_agents)]
+
+    def Probability(self, prob):
+        '''
+        return True with probability prob, False otherwise
+        '''
+        return numpy.random.random() < prob
 
     def run(self, max_gens, debug = False):
         """
@@ -123,38 +130,20 @@ class GA:
         """
         gen = 0
         pop = self.toolbox.population()
-        ex_debug = False
-
-        if debug:
-            print(pop[0].tree)
-            #print(self.toolbox.individual(tree =pop[0].tree))
         self.random_test = [a.RandAgent() for i in range(int(self.pop_size/2))]
         self.human_test = [self.toolbox.human() for i in range(int(self.pop_size / 2))]
+        self.toolbox.evaluate(pop + self.rand_agents + self.human_agents, debug=debug)
+
         while gen < max_gens:
 
             # Vary the population -- not working bc mutate and xover return agents
             new_pop = algorithms.varAnd(pop, self.toolbox, self.xover, self.mut)
             #new_pop = pop
 
-            #evaluate population
-            self.toolbox.evaluate(new_pop + self.rand_agents + self.human_agents, debug = debug)
+            # evaluate population
+            self.toolbox.evaluate(new_pop + self.rand_agents + self.human_agents, debug=debug)
 
-            record = self.stats.compile(new_pop)
-            self.logbook.record(gen=gen, evals=len(new_pop), **record)
 
-            if debug:
-                #best = self.toolbox.get_best(new_pop)[0]
-                print(self.logbook.stream)
-                #print("Generation:", gen, "best fitness:", best.savings)
-                #print("Tree", best.tree)
-                if gen % 20 == 0:
-                    best = self.toolbox.top_half(pop)
-
-                    avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
-                    print("Agent Average:", avg_agent, "Random Average:", avg_rand)
-
-                    avg_agent, avg_human= pop_v_pop(best, self.human_test, 30)
-                    print("Agent Average:", avg_agent, "Human Average:", avg_human)
 
             # Elitism
             elites = self.toolbox.get_elites(pop)
@@ -164,14 +153,60 @@ class GA:
             #because select will replace indivuals
             pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))
 
-            self.toolbox.reset(pop)
+            """elites = self.toolbox.get_elites(pop)
+            new_pop = elites
+            while len(new_pop) < self.pop_size:
+                agent1 = self.toolbox.select(pop, 1)[0]
+                agent2 = self.toolbox.select(pop, 1)[0]
 
+                if self.Probability(self.xover):
+                    agent1, agent2 = self.toolbox.mate(agent1, agent2)
+
+                if self.Probability(self.mut):
+                    self.toolbox.mutate(agent1)
+                    
+                if self.Probability(self.mut):
+                    self.toolbox.mutate(agent2)
+
+                new_pop.append(agent1)
+                if len(new_pop) < self.pop_size:
+                    new_pop.append(agent2)
+
+            self.toolbox.evaluate(new_pop + self.rand_agents + self.human_agents, debug=debug)
+            pop = new_pop"""
+
+            best = self.toolbox.top_half(pop)
+
+            avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
+            rand_ratio = avg_agent / (avg_agent + avg_rand) # greater then %50 if better
+            avg_agent2, avg_human = pop_v_pop(best, self.human_test, 30)
+            human_ratio = avg_agent2 / (avg_agent2 + avg_human)
+
+
+            record = self.stats.compile(pop)
+            self.logbook.record(gen=gen, evals=len(pop), rand = rand_ratio, hum = human_ratio, **record)
+
+            if debug:
+                # best = self.toolbox.get_best(new_pop)[0]
+                print(self.logbook.stream)
+                # print("Generation:", gen, "best fitness:", best.savings)
+                # print("Tree", best.tree)
+                if gen % 20 == 0:
+                    best = self.toolbox.top_half(pop)
+
+                    avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
+                    print("Agent Average:", avg_agent, "Random Average:", avg_rand)
+
+                    avg_agent, avg_human = pop_v_pop(best, self.human_test, 30)
+                    print("Agent Average:", avg_agent, "Human Average:", avg_human)
+
+            self.toolbox.reset(pop)
             gen += 1
         return pop, self.logbook, self.toolbox
 
 
 if __name__ == "__main__":
-    ga = GA(1024, 0.3, 0.3, 100, rand_agents = 300, human_agents= 50)
+    ga = GA(1024, 0.3, 0.3, 100, rand_agents = 300, human_agents= 300)
     pop, log, toolbox = ga.run(1000, True)
     #get top half
     best = toolbox.top_half(pop)
@@ -185,6 +220,7 @@ if __name__ == "__main__":
     print()
     print("-------------------FINAL EVALUATIONS -------------------")
     print()
+
     #run random trials
     avg_agent, avg_rand = pop_v_pop(best, random, 50)
     print("Agent Average:", avg_agent, "Random Average:", avg_rand)
@@ -194,6 +230,15 @@ if __name__ == "__main__":
     avg_rand, avg_human = pop_v_pop(random, human, 50)
     print("Random Average:", avg_rand, "Human Average:", avg_human)
 
+    #display results
+    plt.plot(log.select("gen"), log.select("rand") , label = "Random Ratios")
+    plt.plot(log.select("gen"), log.select("hum"), label = "Human Ratios")
+    plt.title("Evolved Agents Fitness Ratios over Time")
+    plt.ylabel("Ratio of Evolved Fitness over combined")
+    plt.xlabel("Generation")
+    plt.legend()
+    #plt.show()
+    plt.savefig('FitnessOverTime.png')
 
     #display an agent
     print(best[0].tree)

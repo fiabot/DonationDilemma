@@ -59,7 +59,7 @@ class AnaylizeAgent:
                                 op_hist1 = op_don[2]
 
                             try:
-                                donation = self.agent.runTree(my_save, op_save, my_hist1, my_hist2, my_hist3, op_hist1,
+                                donation = self.agent.runTree(my_save * turn, op_save *turn, my_hist1, my_hist2, my_hist3, op_hist1,
                                                               op_hist2, op_hist3, turn)
                                 if donation > 500 or donation < 0 or math.isnan(donation):
                                     donation = self.invalid
@@ -87,10 +87,10 @@ if __name__ == "__main__":
     agents = [Agent.Agent(tree=tree) for tree in trees]
     totals = []
     analysis = []
-    print("Pickled Agents")
+    print("Depickled Agents")
 
     for agent in agents:
-        a = AnaylizeAgent(agent, turns = 10)
+        a = AnaylizeAgent(agent, turns = 5)
         total = a.run()
         totals.append(total)
         analysis.append(a)
