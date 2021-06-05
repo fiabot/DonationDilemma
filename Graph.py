@@ -8,11 +8,18 @@ import operator
 import math
 import random
 #from graphviz import Digraph
-import  networkx as nx
+import networkx as nx
 import matplotlib.pyplot as plt
 import Agent as a
 
 def graphAgent(agent, title = "Title"):
+    """
+    an agent with the purpose of
+    producing graphs of selected evolved
+    donations dilemma agents
+    :param agent: the chosen DD agent
+    :param title: the name of the graph showing the agent
+    """
     tree = agent.tree
     nodes, edges, labels = gp.graph(tree)
 

@@ -107,27 +107,6 @@ def __survived_2players(one, two, one_current, two_current):
         return []
 
 
-def round_fitness_n(players):
-    donations = []
-    for player in players:
-        donations.append(player.donate()) #TODO fixed donation for n players
-
-    wallets = []
-    for donation in donations:
-        wallets.append(69)
-
-    update_savings()
-
-    return __survived_nplayers(players, wallets)
-
-
-def __survived_nplayers(players, wallets):
-    return []
-
-
-def update_savings():
-    pass
-
 if __name__ == "__main__":
     print(is_valid_donation(500))
     print(is_valid_donation(-1))

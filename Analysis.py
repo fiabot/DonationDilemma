@@ -4,7 +4,19 @@ import pickle
 from sklearn.cluster import AffinityPropagation
 
 class AnaylizeAgent:
+    """
+    A supporting agent to the Donation Dilemma agents,
+    takes evolved agents and runs them through some tests
+    in order to find displayable, understandable results
+    """
+
     def __init__(self, agent, turns = 10):
+        """
+        constructor for an agent designed to analysis
+        noteworthy features about a DD's agent and its history
+        :param agent: the DD agent selected for analysis
+        :param turns: the amount of rounds to test the agent for
+        """
         self.agent = agent
         self.turns = turns
         high_savings = 1000
@@ -21,6 +33,7 @@ class AnaylizeAgent:
                                 ("ascend",(low_donation, mid_donation, high_donation)), ("descend" , (high_donation, mid_donation, low_donation)))
 
         self.invalid = -1
+
 
     def run(self):
         self.total = []
@@ -76,8 +89,13 @@ class AnaylizeAgent:
             self.by_turn.append(turn_dons)
         return self.total
 
+
     def number_invalid(self):
+        """
+        checks the validity of AnaylizeAgent's total
+        """
         return self.total.count(self.invalid)
+
 
 if __name__ == "__main__":
 
@@ -103,6 +121,3 @@ if __name__ == "__main__":
 
     n_clusters_ = len(cluster_centers_indices)
     print(n_clusters_)
-
-
-
