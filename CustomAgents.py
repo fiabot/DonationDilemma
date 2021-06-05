@@ -2,6 +2,52 @@ import random
 from Agent import Agent
 
 
+class RandAgent:
+    """
+    A Random agent is one that donates something random, it
+    has no preference for any specific kind of donation.
+    """
+
+    def __init__(self):
+        """
+        base constructor of a RANDOM agent
+        an agent with no history and no savings (and no sanity)
+        """
+        self.savings = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
+
+    def reset(self):
+        self.savings = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
+
+    def donate(self, other, round):
+        """
+        calculates the donation of this agent for one round,
+        the donation being a randomly generated amount
+        :param other: the agent who will receive the donation
+        :param round: the current round number
+        :return: a donation from this agent to another
+        """
+        donation = random.randint(0, 500)
+
+        self.hist3 = self.hist2
+        self.hist2 = self.hist1
+        self.hist1 = donation
+        return donation
+
+
+    def add_savings(self, amount):
+        """
+        adding a specified amount to the agent's savings
+        :param amount: the value to add to agent's total savings
+        """
+        self.savings += amount
+
+
 class GenerousAgent:
     """
     A Generous agent is one that loves to donate everything
@@ -260,7 +306,7 @@ class VengefulAgent:
                 donation = random.randint(0, 10)
             else:
                 donation = random.randint(490, 500)
-                
+
         elif round == 2:
             if other.hist1 < 300 or other.hist2 < 300:
                 donation = random.randint(0, 10)

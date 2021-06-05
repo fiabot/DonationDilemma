@@ -79,7 +79,7 @@ class GA:
 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", a.Agent, fitness=creator.FitnessMax)
-        creator.create("RandomAgent", a.RandAgent, fitness = creator.FitnessMax)
+        creator.create("RandomAgent", CustomAgents.RandAgent, fitness = creator.FitnessMax)
         creator.create("GenerousAgent", CustomAgents.GenerousAgent, fitness = creator.FitnessMax)
         creator.create("StingyAgent", CustomAgents.StingyAgent, fitness=creator.FitnessMax)
         creator.create("TitForTatAgent", CustomAgents.TitForTatAgent, fitness=creator.FitnessMax)
@@ -130,7 +130,7 @@ class GA:
         """
         gen = 0
         pop = self.toolbox.population()
-        self.random_test = [a.RandAgent() for i in range(int(self.pop_size/2))]
+        self.random_test = [CustomAgents.RandAgent() for i in range(int(self.pop_size/2))]
         self.human_test = [self.toolbox.human() for i in range(int(self.pop_size / 2))]
         self.toolbox.evaluate(pop + self.rand_agents + self.human_agents, debug=debug)
 
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     pop, log, toolbox = ga.run(1000, True)
     #get top half
     best = toolbox.top_half(pop)
-    random = [a.RandAgent() for i in range(len(best))]
+    random = [CustomAgents.RandAgent() for i in range(len(best))]
     human = [toolbox.human() for i in range(len(best))]
 
     #pickle population
