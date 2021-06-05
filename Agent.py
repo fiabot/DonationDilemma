@@ -4,7 +4,9 @@ from deap import base
 import math
 import random
 import copy
-#import pygraphviz as pgv
+
+
+# import pygraphviz as pgv
 
 
 def div(numer, denom):
@@ -59,7 +61,7 @@ pset.addPrimitive(operator.mul, 2)
 pset.addPrimitive(operator.abs, 1)
 pset.addPrimitive(operator.sub, 2)
 pset.addPrimitive(div, 2)
-#pset.addEphemeralConstant("Rand101", lambda: random.random() * 500)
+# pset.addEphemeralConstant("Rand101", lambda: random.random() * 500)
 pset.addTerminal(2)
 pset.addTerminal(3)
 for i in range(0, 500, 50):
@@ -107,8 +109,7 @@ class Agent:
         self.hist1 = 0
         self.hist2 = 0
         self.hist3 = 0
-        #self.fitness = base.Fitness()
-
+        # self.fitness = base.Fitness()
 
     def reset(self):
         """
@@ -127,7 +128,6 @@ class Agent:
         the program tree
         """
 
-
         """pset = gp.PrimitiveSet("MAIN", 1)
         pset.addPrimitive(operator.add, 2)
         pset.addPrimitive(operator.sub, 2)
@@ -138,10 +138,7 @@ class Agent:
         pset.addPrimitive(math.sin, 1)
         pset.addEphemeralConstant("whatever", lambda: random.randint(-1, 1))"""
 
-
-
         self.pset = pset
-
 
     def donate(self, other, turn):
         """
@@ -153,7 +150,8 @@ class Agent:
         :return: a donation from this agent to another
         """
         try:
-            donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1, other.hist2, other.hist3, turn)
+            donation = self.runTree(self.savings, other.savings, self.hist1, self.hist2, self.hist3, other.hist1,
+                                    other.hist2, other.hist3, turn)
             if donation > 500 or donation < 0 or math.isnan(donation):
                 donation = 600
             elif math.isnan(donation):
@@ -167,7 +165,6 @@ class Agent:
         self.hist1 = donation
         return donation
 
-
     def add_savings(self, amount):
         """
         add specified amount to savings
@@ -175,13 +172,11 @@ class Agent:
         """
         self.savings += amount
 
-
     def get_savings(self):
         """
         :return: the current savings of the agent
         """
         return self.savings
-
 
     def get_tree(self):
         """
@@ -189,7 +184,6 @@ class Agent:
         Could cause trouble but...
         """
         return self.tree
-
 
     def crossover(self, other):
         """
@@ -208,7 +202,7 @@ class Agent:
         :param muts: specified number of mutations to occur
         """
         for i in range(muts):
-            num = random.randint(0,2)
+            num = random.randint(0, 2)
             if num == 0:
                 self.tree = gp.mutNodeReplacement(self.tree, self.pset)[0]
             elif num == 1:
@@ -217,10 +211,17 @@ class Agent:
                 self.tree = gp.mutInsert(self.tree, self.pset)[0]
         self.runTree = gp.compile(self.tree, self.pset)
 
+
 def copy_agent_tree(agent):
+    """
+
+    :param agent: the chosen Donation Dilemma agent
+    :return: a copy of the given agent tree
+    """
     return gp.PrimitiveTree.from_string(str(agent.tree), agent.pset)
 
-def mate(agent1, agent2, max_height = 17, toolbox = None, i = 0):
+
+def mate(agent1, agent2, max_height=17, toolbox=None, i=0):
     """
     Return the offspring of a one point crossover between two
     agents. If one offspring exceeds the max height, return one
@@ -239,14 +240,14 @@ def mate(agent1, agent2, max_height = 17, toolbox = None, i = 0):
     if newTree2.height > max_height:
         newTree2 = random.choice([agent1.tree, agent2.tree])
 
-    if toolbox  != None:
-        return toolbox.individual(tree =newTree1), toolbox.individual(tree =newTree2)
+    if toolbox != None:
+        return toolbox.individual(tree=newTree1), toolbox.individual(tree=newTree2)
     else:
         return Agent(agent1.min_height, agent1.max_height, tree=newTree1), Agent(agent1.min_height, agent1.max_height,
-                                                                         tree=newTree2)
+                                                                                 tree=newTree2)
 
 
-def mutate(agent, expr, max_height = 17):
+def mutate(agent, expr, max_height=17):
     """
     functionality of random mutation for an agent
     :param agent: the agent to mutate
@@ -254,7 +255,7 @@ def mutate(agent, expr, max_height = 17):
     :param max_height: maximum height to confirm mutation
     :return: a tuple containing the agent, mutated or not
     """
-    #expr = gp.genHalfAndHalf(agent.pset, 0, 2)
+    # expr = gp.genHalfAndHalf(agent.pset, 0, 2)
     tree_copy = copy_agent_tree(agent)
     new_tree = gp.mutUniform(tree_copy, expr, agent.pset)
     new_tree = new_tree[0]
