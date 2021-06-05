@@ -18,15 +18,27 @@ def div(numer, denom):
         return numer / denom
     except ZeroDivisionError:
         return 1
+
+
 def clamp(number, small, large):
+    """
+    if a given number is not within a given
+    range, sets the number to be within the range
+    :param number: a given int
+    :param small: the minimum of the range
+    :param large: the maximum of the range
+    :return: an int within the range
+    """
+    if small > large:
+        temp = large
+        large = small
+        small = temp
     if number < small:
         number = small
     elif number > large:
         number = large
     return number
 
-def randomNum(min = 0, max = 500):
-    return random.randint(min, max)
 
 """pset = gp.PrimitiveSet("MAIN", 1)
 pset.addPrimitive(operator.add, 2)
@@ -296,7 +308,6 @@ def mutate(agent, expr, max_height = 17):
 
 
 if __name__ == "__main__":
-    print(randomNum())
     agent = Agent(1, 5)
     agent2 = Agent(1, 5)
     a1, a2 = mate(agent, agent2, max_height=6)
