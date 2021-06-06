@@ -4,9 +4,11 @@ from deap import base
 import math
 import random
 import copy
+import Graph
 
 
 # import pygraphviz as pgv
+NUM_INPUTS = 6
 
 
 class PrisonerAgent:
@@ -41,6 +43,24 @@ class PrisonerAgent:
         self.hist2 = 0
         self.hist3 = 0
 
+    def create_prim_set(self):
+        pset = gp.PrimitiveSet("MAIN", NUM_INPUTS)
+        pset.addPrimitive(operator.and_, 2)
+        pset.addPrimitive(operator.or_, 2)
+        pset.addPrimitive(operator.xor, 2)
+        pset.addPrimitive(operator.not_, 1)
+        pset.addTerminal(1)
+        pset.addTerminal(0)
+
+        pset.renameArguments(ARG0="myHist1")
+        pset.renameArguments(ARG1="myHist2")
+        pset.renameArguments(ARG2="myHist3")
+        pset.renameArguments(ARG3="opHist1")
+        pset.renameArguments(ARG4="opHist2")
+        pset.renameArguments(ARG5="opHist3")
+
+        self.pset = pset
+
     def decide(self, other, turn):
         """
         determines whether or not the PrisonerAgent
@@ -50,8 +70,8 @@ class PrisonerAgent:
         :return: a boolean: True for cooperation,
         False for defect
         """
-        decision = self.runTree(self.fitness, other.fitness, self.hist1, self.hist2, self.hist3, other.hist1,
-                                other.hist2, other.hist3, turn)
+        decision = self.runTree(self.hist1, self.hist2, self.hist3, other.hist1,
+                                other.hist2, other.hist3)
         self.hist3 = self.hist2
         self.hist2 = self.hist1
         self.hist1 = decision
@@ -63,3 +83,12 @@ class PrisonerAgent:
         :param amount: the value to add to agent's total fitness
         """
         self.fitness += amount
+
+if __name__ == "__main__":
+    agent = PrisonerAgent()
+    agent2 = PrisonerAgent()
+
+    print(agent.decide(agent2,4))
+    Graph.graphAgent(agent)
+
+
