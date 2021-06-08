@@ -3,6 +3,7 @@ import operator
 from deap import base
 import math
 import random
+import PrisonerAgent
 import copy
 
 
@@ -221,7 +222,7 @@ def copy_agent_tree(agent):
     return gp.PrimitiveTree.from_string(str(agent.tree), agent.pset)
 
 
-def mate(agent1, agent2, max_height=17, toolbox=None, i=0):
+def mate(agent1, agent2, max_height=17, toolbox=None, donation = True):
     """
     Return the offspring of a one point crossover between two
     agents. If one offspring exceeds the max height, return one
@@ -242,8 +243,11 @@ def mate(agent1, agent2, max_height=17, toolbox=None, i=0):
 
     if toolbox != None:
         return toolbox.individual(tree=newTree1), toolbox.individual(tree=newTree2)
-    else:
+    elif donation:
         return Agent(agent1.min_height, agent1.max_height, tree=newTree1), Agent(agent1.min_height, agent1.max_height,
+                                                                                 tree=newTree2)
+    else:
+        return PrisonerAgent.PrisonerAgent(agent1.min_height, agent1.max_height, tree=newTree1), PrisonerAgent.PrisonerAgent(agent1.min_height, agent1.max_height,
                                                                                  tree=newTree2)
 
 
