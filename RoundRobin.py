@@ -24,7 +24,7 @@ def round_fitness(one, two, turn):
     one_decision = round(one.decide(two, turn))
     two_decision = round(two.decide(one, turn))
     if is_valid_decision(one_decision) and is_valid_decision(two_decision):
-        round_result(one_decision, two_decision)
+        round_result(one, two, one_decision, two_decision)
 
 
 def is_valid_decision(decision):

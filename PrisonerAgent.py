@@ -38,7 +38,7 @@ class PrisonerAgent:
         self.runTree = gp.compile(self.tree, self.pset)
 
         # self.alive = True
-        self.fitness = 0
+        self.savings = 0
         self.hist1 = 0
         self.hist2 = 0
         self.hist3 = 0
@@ -78,7 +78,7 @@ class PrisonerAgent:
         return decision
 
     def reset(self):
-        self.fitness = 0
+        self.savings = 0
         self.hist1 = 0
         self.hist2 = 0
         self.hist3 = 0
@@ -88,7 +88,7 @@ class PrisonerAgent:
         add specified amount to the agent's fitness
         :param amount: the value to add to agent's total fitness
         """
-        self.fitness += amount
+        self.savings += amount
 
 if __name__ == "__main__":
     agent = PrisonerAgent()

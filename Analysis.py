@@ -2,6 +2,9 @@ import Agent
 import math
 import pickle
 from sklearn.cluster import AffinityPropagation
+from deap import tools
+import matplotlib.pyplot as plt
+import Graph
 
 class AnaylizeAgent:
     """

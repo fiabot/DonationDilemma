@@ -16,10 +16,11 @@ import time
 import CustomAgents
 import matplotlib.pyplot as plt
 import RoundRobin
+import CustomPrisoners
 
 MAX_HEIGHT = 4
 TIMETHRES = 2
-def evaluate(agents, num_tours, dontation = True, debug = False):
+def evaluate(agents, num_tours,debug = False, donation = True):
     """
     averaging the results of multiple tournaments
     with the same collection of agents
@@ -32,20 +33,18 @@ def evaluate(agents, num_tours, dontation = True, debug = False):
             timer = time.perf_counter() - start_time
             if(timer > TIMETHRES):
                 print("Tourament", i)
-        if dontation:
+        if donation:
             Tournament.run_2players(agents, debug = debug)
         else:
             RoundRobin.round_robin(agents)
     for a in agents:
         a.fitness.values = a.savings / num_tours,
 
-def average_savings(pop, donations = True):
+
+def average_savings(pop, donation = True):
     s = 0
     for a in pop:
-        if donations:
             s += a.savings
-        else:
-            s += a.fitness
     return s / len(pop)
 
 def pop_v_pop(pop1, pop2, num_tours, donation = True):
@@ -57,7 +56,7 @@ def pop_v_pop(pop1, pop2, num_tours, donation = True):
             RoundRobin.round_robin(total)
     for a in total:
         a.savings = a.savings / num_tours
-    return average_savings(pop1), average_savings(pop2)
+    return average_savings(pop1, donation), average_savings(pop2, donation)
 
 def reset(agents):
     """
@@ -87,6 +86,8 @@ class GA:
 
         if (donation):
             self.BuildDonationTools(rand_agents, human_agents)
+        else:
+            self.BuildPrisonTools(rand_agents, human_agents)
 
 
     def BuildDonationTools(self, rand_agents, human_agents):
@@ -109,8 +110,8 @@ class GA:
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         # toolbox.register("tourament", creator.Tourament, )
-        self.toolbox.register("evaluate", evaluate, num_tours=30, donation = False)  # <- set up method or evaluation
-        self.toolbox.register("pop_v_pop", pop_v_pop, num_tours = 10, donation = False)
+        self.toolbox.register("evaluate", evaluate, num_tours=30, donation = True)  # <- set up method or evaluation
+        self.toolbox.register("pop_v_pop", pop_v_pop, num_tours = 10, donation = True)
         self.toolbox.register("select", tools.selTournament,
                               tournsize=3)  # <- select indivuals from a tourment style thingy
         self.toolbox.register("mate", a.mate, max_height=MAX_HEIGHT, toolbox=self.toolbox)
@@ -136,24 +137,22 @@ class GA:
     def BuildPrisonTools(self, rand_agents, human_agents):
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", p.PrisonerAgent, fitness=creator.FitnessMax)
-        creator.create("RandomAgent", CustomAgents.RandAgent, fitness=creator.FitnessMax)
-        creator.create("GenerousAgent", CustomAgents.GenerousAgent, fitness=creator.FitnessMax)
-        creator.create("StingyAgent", CustomAgents.StingyAgent, fitness=creator.FitnessMax)
-        creator.create("TitForTatAgent", CustomAgents.TitForTatAgent, fitness=creator.FitnessMax)
-        creator.create("AveragingAgent", CustomAgents.AveragingAgent, fitness=creator.FitnessMax)
-        creator.create("VengfulAgent", CustomAgents.VengefulAgent, fitness=creator.FitnessMax)
+        creator.create("RandomAgent", CustomPrisoners.RandomPrisoner, fitness=creator.FitnessMax)
+        creator.create("AlwaysCoop", CustomPrisoners.AlwaysCoop, fitness=creator.FitnessMax)
+        creator.create("AlwaysDefect", CustomPrisoners.AlwaysDefect, fitness=creator.FitnessMax)
+        creator.create("TitForTat", CustomPrisoners.TitForTat, fitness=creator.FitnessMax)
         # creator.create("Tourament", Tournament.Tournament)
 
         self.toolbox = base.Toolbox()
         self.toolbox.register("individual", creator.Individual, max_height=MAX_HEIGHT)
         self.toolbox.register("random", creator.RandomAgent)
         self.toolbox.register("human",
-                              random.choice([creator.GenerousAgent, creator.StingyAgent, creator.TitForTatAgent,
-                                             creator.AveragingAgent, creator.VengfulAgent]))
+                              random.choice([creator.AlwaysCoop, creator.AlwaysDefect, creator.TitForTat]))
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
         # toolbox.register("tourament", creator.Tourament, )
-        self.toolbox.register("evaluate", evaluate, num_tours=30)  # <- set up method or evaluation
+        self.toolbox.register("evaluate", evaluate, num_tours=30, donation = False)  # <- set up method or evaluation
+        self.toolbox.register("pop_v_pop", pop_v_pop, num_tours=10, donation=False)
         self.toolbox.register("select", tools.selTournament,
                               tournsize=3)  # <- select indivuals from a tourment style thingy
         self.toolbox.register("mate", a.mate, max_height=MAX_HEIGHT, toolbox=self.toolbox)
@@ -189,7 +188,7 @@ class GA:
         """
         gen = 0
         pop = self.toolbox.population()
-        self.random_test = [CustomAgents.RandAgent() for i in range(int(self.pop_size/2))]
+        self.random_test = [self.toolbox.random() for i in range(int(self.pop_size/2))]
         self.human_test = [self.toolbox.human() for i in range(int(self.pop_size / 2))]
         self.toolbox.evaluate(pop + self.rand_agents + self.human_agents, debug=debug)
 
@@ -236,9 +235,9 @@ class GA:
 
             best = self.toolbox.top_half(pop)
 
-            avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
+            avg_agent, avg_rand = self.toolbox.pop_v_pop(best, self.random_test)
             rand_ratio = avg_agent / (avg_agent + avg_rand) # greater then %50 if better
-            avg_agent2, avg_human = pop_v_pop(best, self.human_test, 30)
+            avg_agent2, avg_human = self.toolbox.pop_v_pop(best, self.human_test)
             human_ratio = avg_agent2 / (avg_agent2 + avg_human)
 
 
@@ -253,10 +252,10 @@ class GA:
                 if gen % 20 == 0:
                     best = self.toolbox.top_half(pop)
 
-                    avg_agent, avg_rand = pop_v_pop(best, self.random_test, 30)
+                    avg_agent, avg_rand = self.toolbox.pop_v_pop(best, self.random_test)
                     print("Agent Average:", avg_agent, "Random Average:", avg_rand)
 
-                    avg_agent, avg_human = pop_v_pop(best, self.human_test, 30)
+                    avg_agent, avg_human = self.toolbox.pop_v_pop(best, self.human_test)
                     print("Agent Average:", avg_agent, "Human Average:", avg_human)
 
             self.toolbox.reset(pop)
@@ -265,28 +264,28 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(1024, 0.3, 0.3, 100, rand_agents = 300, human_agents= 300)
-    pop, log, toolbox = ga.run(1000, True)
+    ga = GA(30, 0.3, 0.3, 1, rand_agents = 20, human_agents= 20, donation = False)
+    pop, log, toolbox = ga.run(100, True)
     #get top half
     best = toolbox.top_half(pop)
-    random = [CustomAgents.RandAgent() for i in range(len(best))]
+    random = [toolbox.random() for i in range(len(best))]
     human = [toolbox.human() for i in range(len(best))]
 
     #pickle population
     pop_trees = [agent.tree for agent in pop]
-    pickle.dump(pop_trees, open("LastGeneration.p", "wb"))
+    pickle.dump(pop_trees, open("Prisoners.p", "wb"))
 
     print()
     print("-------------------FINAL EVALUATIONS -------------------")
     print()
 
     #run random trials
-    avg_agent, avg_rand = pop_v_pop(best, random, 50)
+    avg_agent, avg_rand = pop_v_pop(best, random, 50, donation = False)
     print("Agent Average:", avg_agent, "Random Average:", avg_rand)
-    avg_agent, avg_human = pop_v_pop(best, human, 50)
+    avg_agent, avg_human = pop_v_pop(best, human, 50, donation = False)
     print("Agent Average:", avg_agent, "Human Average:", avg_human)
 
-    avg_rand, avg_human = pop_v_pop(random, human, 50)
+    avg_rand, avg_human = pop_v_pop(random, human, 50, donation = False)
     print("Random Average:", avg_rand, "Human Average:", avg_human)
 
     #display results
@@ -297,7 +296,7 @@ if __name__ == "__main__":
     plt.xlabel("Generation")
     plt.legend()
     #plt.show()
-    plt.savefig('FitnessOverTime.png')
+    plt.savefig('PrisonersFitness.png')
 
     #display an agent
     print(best[0].tree)
