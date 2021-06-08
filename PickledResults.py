@@ -35,7 +35,7 @@ print()
 #run random trials
 avg_agent, avg_rand = GA.pop_v_pop(donTopHalf, donRandom, 50, donation = True)
 print("Agent Average:", avg_agent, "Random Average:", avg_rand)
-avg_agent, avg_human = GA.pop_v_pop(donTopHalf, donRandom, 50, donation = True)
+avg_agent, avg_human = GA.pop_v_pop(donTopHalf, donHuman, 50, donation = True)
 print("Agent Average:", avg_agent, "Human Average:", avg_human)
 
 
@@ -73,7 +73,7 @@ print()
 #run random trials
 avg_agent, avg_rand = GA.pop_v_pop(prisTopHalf, prisRandom, 50, donation = False)
 print("Agent Average:", avg_agent, "Random Average:", avg_rand)
-avg_agent, avg_human = GA.pop_v_pop(prisTopHalf, prisRandom, 50, donation = False)
+avg_agent, avg_human = GA.pop_v_pop(prisTopHalf, prisHuman, 50, donation = False)
 print("Agent Average:", avg_agent, "Human Average:", avg_human)
 
 
