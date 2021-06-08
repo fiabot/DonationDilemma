@@ -77,6 +77,12 @@ class PrisonerAgent:
         self.hist1 = decision
         return decision
 
+    def reset(self):
+        self.fitness = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
+
     def add_fitness(self, amount):
         """
         add specified amount to the agent's fitness

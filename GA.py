@@ -8,16 +8,18 @@ import operator
 import math
 import random
 import Agent as a
+import PrisonerAgent as p
 import Tournament
 import Graph
 import pickle
 import time
 import CustomAgents
 import matplotlib.pyplot as plt
+import RoundRobin
 
 MAX_HEIGHT = 4
 TIMETHRES = 2
-def evaluate(agents, num_tours, debug = False):
+def evaluate(agents, num_tours, dontation = True, debug = False):
     """
     averaging the results of multiple tournaments
     with the same collection of agents
@@ -30,24 +32,31 @@ def evaluate(agents, num_tours, debug = False):
             timer = time.perf_counter() - start_time
             if(timer > TIMETHRES):
                 print("Tourament", i)
-        Tournament.run_2players(agents, debug = debug)
+        if dontation:
+            Tournament.run_2players(agents, debug = debug)
+        else:
+            RoundRobin.round_robin(agents)
     for a in agents:
         a.fitness.values = a.savings / num_tours,
 
-def average_savings(pop):
+def average_savings(pop, donations = True):
     s = 0
     for a in pop:
-        s += a.savings
+        if donations:
+            s += a.savings
+        else:
+            s += a.fitness
     return s / len(pop)
 
-def pop_v_pop(pop1, pop2, num_tours):
+def pop_v_pop(pop1, pop2, num_tours, donation = True):
     total = pop1[:] + pop2[:]
     for i in range(num_tours):
-        Tournament.run_2players(total)
+        if donation:
+            Tournament.run_2players(total)
+        else:
+            RoundRobin.round_robin(total)
     for a in total:
         a.savings = a.savings / num_tours
-
-
     return average_savings(pop1), average_savings(pop2)
 
 def reset(agents):
@@ -62,7 +71,7 @@ def reset(agents):
 
 class GA:
 
-    def __init__(self, pop_size, xover, mut, elites, rand_agents = 20, human_agents = 20):
+    def __init__(self, pop_size, xover, mut, elites, rand_agents = 20, human_agents = 20, donation = True):
         """
         main contructor for the genetic algorithm
         :param pop_size: number of agents in the pop
@@ -76,33 +85,83 @@ class GA:
         self.mut = mut
         self.elites = elites
 
+        if (donation):
+            self.BuildDonationTools(rand_agents, human_agents)
 
+
+    def BuildDonationTools(self, rand_agents, human_agents):
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", a.Agent, fitness=creator.FitnessMax)
-        creator.create("RandomAgent", CustomAgents.RandAgent, fitness = creator.FitnessMax)
-        creator.create("GenerousAgent", CustomAgents.GenerousAgent, fitness = creator.FitnessMax)
+        creator.create("RandomAgent", CustomAgents.RandAgent, fitness=creator.FitnessMax)
+        creator.create("GenerousAgent", CustomAgents.GenerousAgent, fitness=creator.FitnessMax)
         creator.create("StingyAgent", CustomAgents.StingyAgent, fitness=creator.FitnessMax)
         creator.create("TitForTatAgent", CustomAgents.TitForTatAgent, fitness=creator.FitnessMax)
         creator.create("AveragingAgent", CustomAgents.AveragingAgent, fitness=creator.FitnessMax)
         creator.create("VengfulAgent", CustomAgents.VengefulAgent, fitness=creator.FitnessMax)
-        #creator.create("Tourament", Tournament.Tournament)
+        # creator.create("Tourament", Tournament.Tournament)
 
         self.toolbox = base.Toolbox()
-        self.toolbox.register("individual", creator.Individual, max_height = MAX_HEIGHT)
+        self.toolbox.register("individual", creator.Individual, max_height=MAX_HEIGHT)
         self.toolbox.register("random", creator.RandomAgent)
-        self.toolbox.register("human", random.choice([creator.GenerousAgent, creator.StingyAgent, creator.TitForTatAgent,
-                                                      creator.AveragingAgent, creator.VengfulAgent] ))
+        self.toolbox.register("human",
+                              random.choice([creator.GenerousAgent, creator.StingyAgent, creator.TitForTatAgent,
+                                             creator.AveragingAgent, creator.VengfulAgent]))
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
 
-        #toolbox.register("tourament", creator.Tourament, )
-        self.toolbox.register("evaluate", evaluate, num_tours = 30)  # <- set up method or evaluation
-        self.toolbox.register("select", tools.selTournament, tournsize=3)  # <- select indivuals from a tourment style thingy
-        self.toolbox.register("mate", a.mate, max_height = MAX_HEIGHT, toolbox = self.toolbox)
+        # toolbox.register("tourament", creator.Tourament, )
+        self.toolbox.register("evaluate", evaluate, num_tours=30, donation = False)  # <- set up method or evaluation
+        self.toolbox.register("pop_v_pop", pop_v_pop, num_tours = 10, donation = False)
+        self.toolbox.register("select", tools.selTournament,
+                              tournsize=3)  # <- select indivuals from a tourment style thingy
+        self.toolbox.register("mate", a.mate, max_height=MAX_HEIGHT, toolbox=self.toolbox)
         self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-        self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height = MAX_HEIGHT)
+        self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height=MAX_HEIGHT)
         self.toolbox.register("get_elites", tools.selBest, k=self.elites)
         self.toolbox.register("get_best", tools.selBest, k=1)
-        self.toolbox.register("top_half", tools.selBest, k = int(self.pop_size / 2))
+        self.toolbox.register("top_half", tools.selBest, k=int(self.pop_size / 2))
+        self.toolbox.register("reset", reset)
+
+        self.stats = tools.Statistics(lambda ind: ind.fitness.values)
+        self.stats.register("avg", numpy.mean)
+        self.stats.register("std", numpy.std)
+        self.stats.register("min", numpy.min)
+        self.stats.register("max", numpy.max)
+
+        self.logbook = tools.Logbook()
+        self.logbook.header = "gen", "evals", "rand", "hum", "std", "min", "avg", "max"
+
+        self.rand_agents = [self.toolbox.random() for i in range(rand_agents)]
+        self.human_agents = [self.toolbox.human() for i in range(human_agents)]
+
+    def BuildPrisonTools(self, rand_agents, human_agents):
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", p.PrisonerAgent, fitness=creator.FitnessMax)
+        creator.create("RandomAgent", CustomAgents.RandAgent, fitness=creator.FitnessMax)
+        creator.create("GenerousAgent", CustomAgents.GenerousAgent, fitness=creator.FitnessMax)
+        creator.create("StingyAgent", CustomAgents.StingyAgent, fitness=creator.FitnessMax)
+        creator.create("TitForTatAgent", CustomAgents.TitForTatAgent, fitness=creator.FitnessMax)
+        creator.create("AveragingAgent", CustomAgents.AveragingAgent, fitness=creator.FitnessMax)
+        creator.create("VengfulAgent", CustomAgents.VengefulAgent, fitness=creator.FitnessMax)
+        # creator.create("Tourament", Tournament.Tournament)
+
+        self.toolbox = base.Toolbox()
+        self.toolbox.register("individual", creator.Individual, max_height=MAX_HEIGHT)
+        self.toolbox.register("random", creator.RandomAgent)
+        self.toolbox.register("human",
+                              random.choice([creator.GenerousAgent, creator.StingyAgent, creator.TitForTatAgent,
+                                             creator.AveragingAgent, creator.VengfulAgent]))
+        self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual, self.pop_size)
+
+        # toolbox.register("tourament", creator.Tourament, )
+        self.toolbox.register("evaluate", evaluate, num_tours=30)  # <- set up method or evaluation
+        self.toolbox.register("select", tools.selTournament,
+                              tournsize=3)  # <- select indivuals from a tourment style thingy
+        self.toolbox.register("mate", a.mate, max_height=MAX_HEIGHT, toolbox=self.toolbox)
+        self.toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+        self.toolbox.register("mutate", a.mutate, expr=self.toolbox.expr_mut, max_height=MAX_HEIGHT)
+        self.toolbox.register("get_elites", tools.selBest, k=self.elites)
+        self.toolbox.register("get_best", tools.selBest, k=1)
+        self.toolbox.register("top_half", tools.selBest, k=int(self.pop_size / 2))
         self.toolbox.register("reset", reset)
 
         self.stats = tools.Statistics(lambda ind: ind.fitness.values)

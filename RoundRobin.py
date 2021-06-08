@@ -23,7 +23,7 @@ def round_fitness(one, two, turn):
     """
     one_decision = round(one.decide(two, turn))
     two_decision = round(two.decide(one, turn))
-    if is_valid_decision(one_decision) and is_valid_decision(two_decision):
+    if is_valid_decision(one_decision) == 1 and is_valid_decision(two_decision) == 1:
         round_result(one_decision, two_decision)
 
 
@@ -32,7 +32,7 @@ def is_valid_decision(decision):
     a check to confirm that the agent is either cooperating or defecting
     :param decision: the boolean confirmation of an agent's decision
     """
-    return decision is False or decision is True
+    return decision == 1 or decision == 0
 
 
 def round_result(agent1, agent2, decision1, decision2):
@@ -44,13 +44,13 @@ def round_result(agent1, agent2, decision1, decision2):
     :param decision2: decision of agent 2
     :return:
     """
-    if decision1 is True and decision2 is True:
+    if decision1 == 1 and decision2 == 1:
         agent1.add_fitness(2)
         agent2.add_fitness(2)
-    elif decision1 is True and decision2 is False:
+    elif decision1 == 1 and decision2 == 0:
         agent1.add_fitness(0)
         agent2.add_fitness(3)
-    elif decision1 is False and decision2 is True:
+    elif decision1 == 0 and decision2 == 1:
         agent1.add_fitness(3)
         agent2.add_fitness(0)
     else:
