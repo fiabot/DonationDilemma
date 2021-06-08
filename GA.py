@@ -264,7 +264,7 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(100, 0.3, 0.3, 10, rand_agents = 100, human_agents= 100, donation = False)
+    ga = GA(100, 0.3, 0.3, 10, rand_agents = 50, human_agents= 50, donation = False)
     pop, log, toolbox = ga.run(1000, True)
     #get top half
     best = toolbox.top_half(pop)
@@ -296,7 +296,7 @@ if __name__ == "__main__":
     plt.xlabel("Generation")
     plt.legend()
     #plt.show()
-    plt.savefig('PrisonersFitness.png')
+    plt.savefig('PrisonersFitness1k.png')
 
     #display an agent
     print(best[0].tree)
