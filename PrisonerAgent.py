@@ -5,6 +5,7 @@ import math
 import random
 import copy
 import Graph
+import Agent
 
 
 # import pygraphviz as pgv
@@ -90,11 +91,33 @@ class PrisonerAgent:
         """
         self.savings += amount
 
+def boo(pset, type_):
+    """
+    FOR TESTING DELETE THIS LATER
+    :param self:
+    :return:
+    """
+    return gp.genFull(pset, type_= type_,  min_ = 0, max_ = 2)
+
 if __name__ == "__main__":
-    agent = PrisonerAgent()
-    agent2 = PrisonerAgent()
+    agent = PrisonerAgent(min_height= 1, max_height= 3)
+    agent2 = PrisonerAgent(min_height= 1 , max_height= 3)
 
     print(agent.decide(agent2,4))
-    Graph.graphAgent(agent)
+    Graph.graphAgent(agent, title = "Agent org")
+    print("Agent org", agent.tree)
+    Graph.graphAgent(agent2, title = "Agent 2 org")
+    print("Agent 2 org", agent2.tree)
+
+    Agent.mutate(agent, boo)
+    Graph.graphAgent(agent, title = "Agent Mutated" )
+    print("Agent Mutation", agent.tree)
+
+    new1, new2 = Agent.mate(agent, agent2, donation = False)
+    Graph.graphAgent(new1, title= "Mate 1")
+    Graph.graphAgent(new2, title="Mate 1")
+    print("mate 1", new1.tree)
+    print("mate 2:" , new2.tree)
+
 
 

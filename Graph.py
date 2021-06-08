@@ -12,7 +12,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import Agent as a
 
-def graphAgent(agent, title = "Title"):
+def graphAgent(agent, title = "Title", save = False):
     """
     an agent with the purpose of
     producing graphs of selected evolved
@@ -43,8 +43,10 @@ def graphAgent(agent, title = "Title"):
     ax = plt.gca()
     ax.set_axis_off()
     plt.title(title)
-
-    plt.show()
+    if save:
+        plt.savefig(title + ".png")
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     agent = a.Agent()

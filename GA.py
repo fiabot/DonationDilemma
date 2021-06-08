@@ -20,7 +20,7 @@ import CustomPrisoners
 
 MAX_HEIGHT = 4
 TIMETHRES = 5
-def evaluate(agents, num_tours,debug = False, donation = True):
+def evaluate(agents, num_tours,debug = False, donation = True, indivual = True):
     """
     averaging the results of multiple tournaments
     with the same collection of agents
@@ -38,7 +38,10 @@ def evaluate(agents, num_tours,debug = False, donation = True):
         else:
             RoundRobin.round_robin(agents)
     for a in agents:
-        a.fitness.values = a.savings / num_tours,
+        if indivual:
+            a.fitness.values = a.savings / num_tours,
+        else:
+            a.savings = a.savings / num_tours,
 
 
 def average_savings(pop, donation = True):
@@ -194,7 +197,7 @@ class GA:
 
         while gen < max_gens:
 
-            # Vary the population -- not working bc mutate and xover return agents
+            """"# Vary the population -- not working bc mutate and xover return agents
             new_pop = algorithms.varAnd(pop, self.toolbox, self.xover, self.mut)
             #new_pop = pop
 
@@ -209,9 +212,9 @@ class GA:
             #select indivuals
             #this will replace the previous generation, but with mostly good indivuals
             #because select will replace indivuals
-            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))
+            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))"""
 
-            """elites = self.toolbox.get_elites(pop)
+            elites = self.toolbox.get_elites(pop)
             new_pop = elites
             while len(new_pop) < self.pop_size:
                 agent1 = self.toolbox.select(pop, 1)[0]
@@ -231,12 +234,15 @@ class GA:
                     new_pop.append(agent2)
 
             self.toolbox.evaluate(new_pop + self.rand_agents + self.human_agents, debug=debug)
-            pop = new_pop"""
+            pop = new_pop
 
             best = self.toolbox.top_half(pop)
 
             avg_agent, avg_rand = self.toolbox.pop_v_pop(best, self.random_test)
-            rand_ratio = avg_agent / (avg_agent + avg_rand) # greater then %50 if better
+            total = avg_agent + avg_rand
+            rand_ratio = avg_agent / total # greater then %50 if better
+            print(avg_agent, total)
+            print(avg_agent / total)
             avg_agent2, avg_human = self.toolbox.pop_v_pop(best, self.human_test)
             human_ratio = avg_agent2 / (avg_agent2 + avg_human)
 
@@ -265,7 +271,7 @@ class GA:
 
 if __name__ == "__main__":
     ga = GA(100, 0.3, 0.3, 10, rand_agents = 50, human_agents= 50, donation = False)
-    pop, log, toolbox = ga.run(1000, True)
+    pop, log, toolbox = ga.run(10, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [toolbox.random() for i in range(len(best))]
@@ -273,7 +279,7 @@ if __name__ == "__main__":
 
     #pickle population
     pop_trees = [agent.tree for agent in pop]
-    pickle.dump(pop_trees, open("Prisoners.p", "wb"))
+    #pickle.dump(pop_trees, open("Prisoners.p", "wb"))
 
     print()
     print("-------------------FINAL EVALUATIONS -------------------")
@@ -295,8 +301,8 @@ if __name__ == "__main__":
     plt.ylabel("Ratio of Evolved Fitness over combined")
     plt.xlabel("Generation")
     plt.legend()
-    #plt.show()
-    plt.savefig('PrisonersFitness1k.png')
+    plt.show()
+    #plt.savefig('PrisonersFitness1k.png')
 
     #display an agent
     print(best[0].tree)
