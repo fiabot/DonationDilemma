@@ -45,12 +45,28 @@ def evaluate(agents, num_tours,debug = False, donation = True, indivual = True):
 
 
 def average_savings(pop, donation = True):
+    """
+    Takes a given population of agents and
+    calculates the average of all their savings
+    :param pop: the selected given population
+    :param donation: boolean stating whether its the donations or prisoner dilemma
+    :return: the average savings for the given pop
+    """
     s = 0
     for a in pop:
             s += a.savings
     return s / len(pop)
 
 def pop_v_pop(pop1, pop2, num_tours, donation = True):
+    """
+    challenges two populations against each other
+    and perpares their average savings for future comparison
+    :param pop1: a given population
+    :param pop2: another given population
+    :param num_tours: number of iterations for either tournament or round robins
+    :param donations: boolean stating whether its the donations or prisoner dilemma
+    :return: a tuple of average_savings for both pops
+    """
     total = pop1[:] + pop2[:]
     for i in range(num_tours):
         if donation:
@@ -94,6 +110,12 @@ class GA:
 
 
     def BuildDonationTools(self, rand_agents, human_agents):
+        """
+        perpares the tools necessary for the GP to evolve
+        agents belonging to Donations Dilemma experimentation
+        :param rand_agents: agents that give random donation(s)
+        :param human_agents: agents with a algorithm guiding their donation(s)
+        """
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", a.Agent, fitness=creator.FitnessMax)
         creator.create("RandomAgent", CustomAgents.RandAgent, fitness=creator.FitnessMax)
@@ -137,7 +159,14 @@ class GA:
         self.rand_agents = [self.toolbox.random() for i in range(rand_agents)]
         self.human_agents = [self.toolbox.human() for i in range(human_agents)]
 
+
     def BuildPrisonTools(self, rand_agents, human_agents):
+        """
+        perpares the tools necessary for the GP to evolve
+        agents belonging to Prisoners Dilemma experimentation
+        :param rand_agents: agents that give random decision(s)
+        :param human_agents: agents with a algorithm guiding their decision(s)
+        """
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", p.PrisonerAgent, fitness=creator.FitnessMax)
         creator.create("RandomAgent", CustomPrisoners.RandomPrisoner, fitness=creator.FitnessMax)
@@ -225,7 +254,7 @@ class GA:
 
                 if self.Probability(self.mut):
                     self.toolbox.mutate(agent1)
-                    
+
                 if self.Probability(self.mut):
                     self.toolbox.mutate(agent2)
 
