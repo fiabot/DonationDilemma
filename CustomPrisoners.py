@@ -356,3 +356,74 @@ class Nervous:
         :param amount: the value to add to agent's total fitness
         """
         self.savings += amount
+
+
+class MostCommon:
+    def __init__(self):
+        """
+        Generates a new PrisonerAgent, one that
+        cooperates or defects according to the mode
+        decision of its opponent prior history
+
+        initialize starting variables
+        :param min_height: minimum tree depth complexity
+        :param max_height: maximum tree depth complexity
+        :param tree: the algorithmic tree to copy onto the agent, must use same primative set
+        """
+
+        # self.alive = True
+        self.savings = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
+
+    def decide(self, other, turn):
+        """
+        determines whether or not the PrisonerAgent
+        cooperates or defects
+        :param other: the opponent PrisonerAgent
+        :param turn: the turn number
+        :return: an int; 1 for cooperation,
+        0 for defect
+        """
+        if turn == 0:
+            return 1
+        elif turn == 1 or turn == 2:
+            return other.hist1
+        else:
+            ones = 0
+            zeroes = 0
+            if other.hist1 == 0:
+                zeroes += 1
+            else:
+                ones += 1
+            if other.hist2 == 0:
+                zeroes += 1
+            else:
+                ones += 1
+            if other.hist3 == 0:
+                zeroes += 1
+            else:
+                ones += 1
+
+            if zeroes > ones:
+                return 0
+            else:
+                return 1
+
+    def reset(self):
+        """
+        reverts the agent's variables back
+        to its initialized states
+        """
+        self.savings = 0
+        self.hist1 = 0
+        self.hist2 = 0
+        self.hist3 = 0
+
+    def add_fitness(self, amount):
+        """
+        add specified amount to the agent's fitness
+        :param amount: the value to add to agent's total fitness
+        """
+        self.savings += amount
