@@ -1,4 +1,23 @@
 # The Donations Dilemma
+An Analog Spin on the Prisoner's Dilemma.
+By Fiona Shyne and Logan Walker
+
+Evolutionary Computation at Union College - 2021
+
+In this project, we explore a new approach to the well-explored Prisoner's Dilemma.
+Taking inspiration from the video game series "Jackbox", we used the donations
+minigame from Murder Trivia Party 2 within Jackbox Party Pack 6 as the main
+source to represent and portray our analog interpretation.
+
+The goal of this project is to determine whether or not there is a
+strategy within this 'Donations Dilemma' that proves to be more superior
+than random choice. To accomplish this goal, a variety of different experiments
+and comparisons have been devised. Utilizing human designed strategies as well
+as a baseline agent of random choice, agents are created and evolved using a GP
+package, Deap. With fitness and trends acquired and visualized, we can make
+comparisons between the general success of evolved agents versus those
+belonging to randomness or human design.
+
 
 ## Preemptive Requirements (For Windows, should be similar for Linex?)
 
