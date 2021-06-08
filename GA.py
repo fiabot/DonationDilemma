@@ -19,7 +19,7 @@ import RoundRobin
 import CustomPrisoners
 
 MAX_HEIGHT = 4
-TIMETHRES = 2
+TIMETHRES = 5
 def evaluate(agents, num_tours,debug = False, donation = True):
     """
     averaging the results of multiple tournaments
@@ -264,8 +264,8 @@ class GA:
 
 
 if __name__ == "__main__":
-    ga = GA(30, 0.3, 0.3, 1, rand_agents = 20, human_agents= 20, donation = False)
-    pop, log, toolbox = ga.run(100, True)
+    ga = GA(100, 0.3, 0.3, 10, rand_agents = 100, human_agents= 100, donation = False)
+    pop, log, toolbox = ga.run(1000, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [toolbox.random() for i in range(len(best))]

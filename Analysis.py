@@ -117,10 +117,16 @@ if __name__ == "__main__":
         analysis.append(a)
     print("Analyized Agents")
 
-    af = AffinityPropagation(preference=-50).fit(totals)
-    print("Clustered agents")
-    cluster_centers_indices = af.cluster_centers_indices_
-    labels = af.labels_
+    #af = AffinityPropagation(preference=-50).fit(totals)
+    #print("Clustered agents")
+    #cluster_centers_indices = af.cluster_centers_indices_
+    #labels = af.labels_
 
-    n_clusters_ = len(cluster_centers_indices)
-    print(n_clusters_)
+    #n_clusters_ = len(cluster_centers_indices)
+    #print("Number of Groups" , n_clusters_)
+
+
+    invalid_donations = [a.number_invalid() for a in analysis]
+    plt.hist(invalid_donations)
+    plt.title("Number of Invalid Donations")
+    plt.savefig('InvalidDonations.png')
