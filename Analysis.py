@@ -129,4 +129,6 @@ if __name__ == "__main__":
     invalid_donations = [a.number_invalid() for a in analysis]
     plt.hist(invalid_donations)
     plt.title("Number of Invalid Donations")
-    plt.savefig('InvalidDonations.png')
+    #plt.savefig('InvalidDonations.png')
+    plt.show()
+    print(invalid_donations.count(0))

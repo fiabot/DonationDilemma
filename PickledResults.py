@@ -26,8 +26,6 @@ donTopHalf = donationToolbox.top_half(donationAgents, fit_attr = "savings")
 
 GA.reset(donationAgents + donRandom + donHuman)
 
-#pickle.dump(pop_trees, open("Prisoners.p", "wb"))
-
 print()
 print("-------------------Donation Results -------------------")
 print()
@@ -63,8 +61,6 @@ GA.pop_v_pop(prisonAgents, prisRandom + prisRandom, 50, donation = False)
 prisTopHalf = donationToolbox.top_half(prisonAgents, fit_attr = "savings")
 
 GA.reset(prisonAgents + prisRandom + prisHuman)
-
-#pickle.dump(pop_trees, open("Prisoners.p", "wb"))
 
 print()
 print("------------------- Prisoner Results -------------------")
