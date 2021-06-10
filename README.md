@@ -19,7 +19,7 @@ comparisons between the general success of evolved agents versus those
 belonging to randomness or human design.
 
 
-## Preemptive Requirements (For Windows, should be similar for Linex?)
+## Preemptive Requirements (Confirmed For Windows, should be similar for Linex)
 
 ### Download Deap package
 
@@ -48,20 +48,20 @@ pip install matplotlib
 
 ### Download Sci-Kit Learn
 
-'''
+```
 pip install -U scikit-learn
-'''
+```
 
 ## How to start/run the experiments
 
-# Run a new GA session 
-The file GA.py has an example for how to evolve agents for the prisoner's dilemma, and test agents against both human designed strageties and random stragies. Donations in the GA can be changed to true to evolve donations dilemma agents instead. 
+### Run a new GA session
+The file GA.py has an example for how to evolve agents for the prisoner's dilemma, and test agents against both human designed strategies and random strategies. Donations in the GA can be changed to true to evolve donations dilemma agents instead.
 
-# Test Previously Evolved Agents 
-The pickle objects Pisoners.p and Ten10gens.p (NOTE: rename these) contain agents evolved for one thousand generations for prisoner's and donation dilemmas repectively. The file pickleResults.py test these agents agaisn't human and random agents in a similar fashion to GA.py and prints the results. 
+### Test Previously Evolved Agents
+The pickle objects Prisoners.p and Ten10gens.p (NOTE: rename these) contain agents evolved for one thousand generations for prisoner's and donation dilemmas respectively. The file pickleResults.py test these agents against human and random agents in a similar fashion to GA.py and prints the results.
 
-# Stragety Analysis 
-To look into what strageties emerged, the evolved agents were fed sample inputs and the results (either a decision or donation) were recorded. The list of results was fed into a cluster anaylsis algorithm affinity propagation (from scikit learn). These tests were done in Analysis.py for the donations dillema and PrisonerAnalysis.py for the prisoner's dillema.  
+### Strategy Analysis
+To look into what strategies emerged, the evolved agents were fed sample inputs and the results (either a decision or donation) were recorded. The list of results was fed into a cluster analysis algorithm affinity propagation (from scikit learn). These tests were done in Analysis.py for the donations dilemma and PrisonerAnalysis.py for the prisoner's dilemma.  
 
 ## Where are the generated graphs located?
 Graphs are located in the images folder
