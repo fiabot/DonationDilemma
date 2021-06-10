@@ -300,7 +300,7 @@ class GA:
 
 if __name__ == "__main__":
     ga = GA(100, 0.3, 0.3, 10, rand_agents = 50, human_agents= 50, donation = False)
-    pop, log, toolbox = ga.run(10, True)
+    pop, log, toolbox = ga.run(1000, True)
     #get top half
     best = toolbox.top_half(pop)
     random = [toolbox.random() for i in range(len(best))]
@@ -308,7 +308,7 @@ if __name__ == "__main__":
 
     #pickle population
     pop_trees = [agent.tree for agent in pop]
-    #pickle.dump(pop_trees, open("Prisoners.p", "wb"))
+    pickle.dump(pop_trees, open("Prisoners_2.p", "wb"))
 
     print()
     print("-------------------FINAL EVALUATIONS -------------------")
@@ -330,9 +330,9 @@ if __name__ == "__main__":
     plt.ylabel("Ratio of Evolved Fitness over combined")
     plt.xlabel("Generation")
     plt.legend()
-    plt.show()
-    #plt.savefig('PrisonersFitness1k.png')
+    #plt.show()
+    plt.savefig('PrisonersFitness1k_2.png')
 
     #display an agent
     print(best[0].tree)
-    Graph.graphAgent(best[0], title = "Top half of Agents")
+    Graph.graphAgent(best[0], title = "Top Prisoner Agent", save=False)
