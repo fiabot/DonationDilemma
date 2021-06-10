@@ -301,6 +301,7 @@ class GA:
 if __name__ == "__main__":
     ga = GA(100, 0.3, 0.3, 10, rand_agents = 50, human_agents= 50, donation = False)
     pop, log, toolbox = ga.run(10, True)
+
     #get top half
     best = toolbox.top_half(pop)
     random = [toolbox.random() for i in range(len(best))]
