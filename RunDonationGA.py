@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle
 
 ga = GA.GA(1024, 0.3, 0.3, 10, rand_agents = 500, human_agents= 500, donation = True)
-pop, log, toolbox = ga.run(10, True)
+pop, log, toolbox = ga.run(1000, True)
 
 
 #get top half
