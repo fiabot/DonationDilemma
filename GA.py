@@ -226,7 +226,7 @@ class GA:
 
         while gen < max_gens:
 
-            """"# Vary the population -- not working bc mutate and xover return agents
+            # Vary the population -- not working bc mutate and xover return agents
             new_pop = algorithms.varAnd(pop, self.toolbox, self.xover, self.mut)
             #new_pop = pop
 
@@ -241,37 +241,13 @@ class GA:
             #select indivuals
             #this will replace the previous generation, but with mostly good indivuals
             #because select will replace indivuals
-            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))"""
-
-            elites = self.toolbox.get_elites(pop)
-            new_pop = elites
-            while len(new_pop) < self.pop_size:
-                agent1 = self.toolbox.select(pop, 1)[0]
-                agent2 = self.toolbox.select(pop, 1)[0]
-
-                if self.Probability(self.xover):
-                    agent1, agent2 = self.toolbox.mate(agent1, agent2)
-
-                if self.Probability(self.mut):
-                    self.toolbox.mutate(agent1)
-
-                if self.Probability(self.mut):
-                    self.toolbox.mutate(agent2)
-
-                new_pop.append(agent1)
-                if len(new_pop) < self.pop_size:
-                    new_pop.append(agent2)
-
-            self.toolbox.evaluate(new_pop + self.rand_agents + self.human_agents, debug=debug)
-            pop = new_pop
+            pop += self.toolbox.select(new_pop, len(new_pop) - len(elites))
 
             best = self.toolbox.top_half(pop)
 
             avg_agent, avg_rand = self.toolbox.pop_v_pop(best, self.random_test)
             total = avg_agent + avg_rand
             rand_ratio = avg_agent / total # greater then %50 if better
-            print(avg_agent, total)
-            print(avg_agent / total)
             avg_agent2, avg_human = self.toolbox.pop_v_pop(best, self.human_test)
             human_ratio = avg_agent2 / (avg_agent2 + avg_human)
 
@@ -297,43 +273,3 @@ class GA:
             gen += 1
         return pop, self.logbook, self.toolbox
 
-
-if __name__ == "__main__":
-    ga = GA(100, 0.3, 0.3, 10, rand_agents = 50, human_agents= 50, donation = False)
-    pop, log, toolbox = ga.run(1000, True)
-
-    #get top half
-    best = toolbox.top_half(pop)
-    random = [toolbox.random() for i in range(len(best))]
-    human = [toolbox.human() for i in range(len(best))]
-
-    #pickle population
-    pop_trees = [agent.tree for agent in pop]
-    pickle.dump(pop_trees, open("Prisoners_2.p", "wb"))
-
-    print()
-    print("-------------------FINAL EVALUATIONS -------------------")
-    print()
-
-    #run random trials
-    avg_agent, avg_rand = pop_v_pop(best, random, 50, donation = False)
-    print("Agent Average:", avg_agent, "Random Average:", avg_rand)
-    avg_agent, avg_human = pop_v_pop(best, human, 50, donation = False)
-    print("Agent Average:", avg_agent, "Human Average:", avg_human)
-
-    avg_rand, avg_human = pop_v_pop(random, human, 50, donation = False)
-    print("Random Average:", avg_rand, "Human Average:", avg_human)
-
-    #display results
-    plt.plot(log.select("gen"), log.select("rand") , label = "Random Ratios")
-    plt.plot(log.select("gen"), log.select("hum"), label = "Human Ratios")
-    plt.title("Evolved Agents Fitness Ratios over Time")
-    plt.ylabel("Ratio of Evolved Fitness over combined")
-    plt.xlabel("Generation")
-    plt.legend()
-    #plt.show()
-    plt.savefig('PrisonersFitness1k_2.png')
-
-    #display an agent
-    print(best[0].tree)
-    Graph.graphAgent(best[0], title = "Top Prisoner Agent", save=False)
