@@ -55,7 +55,7 @@ pip install -U scikit-learn
 ## How to start/run the experiments
 
 ### Run a new GA session
-The file GA.py has an example for how to evolve agents for the prisoner's dilemma, and test agents against both human designed strategies and random strategies. Donations in the GA can be changed to true to evolve donations dilemma agents instead.
+The files RunPrisonGA.py and RunDonationGA.py will run a new GA session for prisoner's dillema and donations dilemma repectifully.  
 
 ### Test Previously Evolved Agents
 The pickle objects Prisoners.p and Ten10gens.p (NOTE: rename these) contain agents evolved for one thousand generations for prisoner's and donation dilemmas respectively. The file pickleResults.py test these agents against human and random agents in a similar fashion to GA.py and prints the results.
@@ -64,4 +64,4 @@ The pickle objects Prisoners.p and Ten10gens.p (NOTE: rename these) contain agen
 To look into what strategies emerged, the evolved agents were fed sample inputs and the results (either a decision or donation) were recorded. The list of results was fed into a cluster analysis algorithm affinity propagation (from scikit learn). These tests were done in Analysis.py for the donations dilemma and PrisonerAnalysis.py for the prisoner's dilemma.  
 
 ## Where are the generated graphs located?
-Graphs are located in the images folder
+Graphs are located in the images folder, examples of mutation and crossover are in ExampleAgents2. 
